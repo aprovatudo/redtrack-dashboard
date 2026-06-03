@@ -2,36 +2,42 @@ name: Sync Redtrack Channels
 
 on:
   schedule:
-    - cron: '0 * * * *'   # roda todo hora em ponto
-  workflow_dispatch:        # permite rodar manualmente pelo GitHub
+    - cron: '0 * * * *'   # todo hora — detecta novas contas do Redtrack
+  workflow_dispatch:        # permite rodar manualmente
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     permissions:
-      contents: write       # permissão para fazer commit de volta
+      contents: write
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
-        run: pip install requests
+      - run: pip install requests
 
-      - name: Run sync script
+      - name: Sync novas contas do Redtrack
         env:
           REDTRACK_API_KEY: ${{ secrets.REDTRACK_API_KEY }}
         run: python sync_redtrack.py
 
-      - name: Commit changes (se houver)
+      - name: Auto convites MCC
+        env:
+          GOOGLE_ADS_MCC_ID:           ${{ secrets.GOOGLE_ADS_MCC_ID }}
+          GOOGLE_ADS_DEVELOPER_TOKEN:  ${{ secrets.GOOGLE_ADS_DEVELOPER_TOKEN }}
+          GOOGLE_ADS_CLIENT_ID:        ${{ secrets.GOOGLE_ADS_CLIENT_ID }}
+          GOOGLE_ADS_CLIENT_SECRET:    ${{ secrets.GOOGLE_ADS_CLIENT_SECRET }}
+          GOOGLE_ADS_REFRESH_TOKEN:    ${{ secrets.GOOGLE_ADS_REFRESH_TOKEN }}
+        run: python auto_invite.py
+
+      - name: Commit alterações
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add accounts_to_invite.txt last_serial.json
-          git diff --cached --quiet || git commit -m "sync: novas contas do Redtrack"
+          git add accounts_to_invite.txt last_serial.json invite_timestamps.json
+          git diff --cached --quiet || git commit -m "auto: sync Redtrack + convites MCC"
           git push
