@@ -1,0 +1,72 @@
+{
+  "historico": [
+    {
+      "id": 1,
+      "data": "2026-05-27",
+      "tipo_politica": "Fraude de Sistema: Técnicas de Cloaking",
+      "argumento_principal": "Scripts de terceiros na infraestrutura de hospedagem podem gerar comportamento semelhante a cloaking sem intenção ou controle do anunciante",
+      "texto": "Prezada Equipe de Políticas do Google Ads,\n\nSolicito a revisão da suspensão da minha conta com base na política de Fraude de Sistema: técnicas de cloaking.\n\nApós análise interna, verificamos que não realizamos qualquer prática intencional de cloaking. Nossa conta exibe o mesmo conteúdo tanto para usuários quanto para os sistemas de revisão do Google.\n\nO que pode ter gerado a sinalização são scripts ou comportamentos de terceiros presentes na infraestrutura de hospedagem utilizada, sobre os quais não temos controle direto. Esses scripts são gerenciados pela plataforma de hospedagem e podem, em certos contextos, alterar a resposta do servidor de forma que se assemelhe a cloaking — sem qualquer intenção ou benefício de nossa parte.\n\nReforço que nossa operação está em conformidade com as políticas do Google Ads e que não há qualquer vantagem sendo obtida através dessa prática.\n\nSolicito gentilmente a reativação da conta para que possamos continuar anunciando de forma legítima.\n\nAtenciosamente,\n[Seu nome]",
+      "resultado": "reprovado",
+      "contas_testadas": [],
+      "observacoes": "Rejeitado"
+    },
+    {
+      "id": 2,
+      "data": "2026-05-27",
+      "tipo_politica": "Práticas Comerciais Inaceitáveis",
+      "argumento_principal": "Operação legítima com informações verídicas, processo de compra transparente e suporte ativo — disponibilidade para ajustes se necessário",
+      "texto": "Prezada Equipe de Políticas do Google Ads,\n\nSolicito a revisão da suspensão da minha conta com base na política de Práticas Comerciais Inaceitáveis.\n\nApós análise cuidadosa, não identificamos qualquer prática em nossa operação que viole as diretrizes do Google Ads. Nossos anúncios direcionam para páginas legítimas, com informações verídicas sobre o produto, processo de compra transparente e canais de suporte ativos para os clientes.\n\nCaso a sinalização tenha sido gerada por algum elemento específico da página ou do fluxo de compra, estamos totalmente disponíveis para realizar os ajustes necessários. Nossa intenção é operar em total conformidade com as políticas vigentes.\n\nSolicitamos a reativação da conta e, se possível, mais detalhes sobre o ponto específico que gerou a suspensão para que possamos corrigir imediatamente.\n\nAtenciosamente,\n[Seu nome]",
+      "resultado": "reprovado",
+      "contas_testadas": [],
+      "observacoes": "Reprovado — argumento genérico demais"
+    },
+    {
+      "id": 3,
+      "data": "2026-05-28",
+      "tipo_politica": "Fraude em Sistema",
+      "argumento_principal": "Divergência de login devido a MCC e a conta isolada",
+      "texto": "Prezada equipe do Google Ads,\nSolicitamos uma nova análise da suspensão aplicada à nossa conta.\nApós verificarmos a estrutura de gerenciamento das contas, identificamos que a conta suspensa está vinculada a uma conta de administrador (MCC) utilizada para gestão centralizada de campanhas. Acreditamos que a suspensão possa ter ocorrido em razão de diferenças entre os dados de login ou de acesso da conta MCC e da conta individual do Google Ads.\nGostaríamos de esclarecer que essa configuração foi criada exclusivamente para fins de administração e gerenciamento das campanhas, prática comum entre anunciantes e agências. Não houve qualquer tentativa de ocultar identidade, contornar políticas, criar contas duplicadas para evasão de regras ou realizar atividades que violem os Termos e Condições do Google Ads.\nTodos os usuários vinculados à conta são autorizados, e estamos totalmente dispostos a fornecer quaisquer documentos ou informações adicionais necessários para comprovar a legitimidade da empresa e das operações realizadas.\nSolicitamos gentilmente uma revisão manual da suspensão, considerando que a possível inconsistência decorre apenas da estrutura de acesso e gerenciamento da conta, e não de qualquer violação intencional das políticas da plataforma.\nAgradecemos a atenção e permanecemos à disposição para quaisquer esclarecimentos adicionais.\nAtenciosamente,\nSILVA E BALTIERI CONSULTORIA FINANCEIRA LTDA",
+      "resultado": "aprovado",
+      "contas_testadas": [],
+      "observacoes": "Aprovado"
+    },
+    {
+      "id": 4,
+      "data": "2026-05-29",
+      "tipo_politica": "Fraude de Sistema: Técnicas de Cloaking",
+      "argumento_principal": "Uso legítimo de plataforma de rastreio com redirect transparente — conteúdo idêntico para todos os usuários, incluindo sistemas de revisão do Google",
+      "texto": "Prezada equipe do Google Ads,\n\nSolicitamos uma nova análise da suspensão aplicada à nossa conta com base na política de Fraude de Sistema: Técnicas de Cloaking.\n\nApós investigação detalhada de toda a nossa estrutura de veiculação, confirmamos que não há qualquer prática de cloaking em nossas campanhas. O conteúdo exibido é rigorosamente idêntico para todos os visitantes, independentemente de origem, agente de usuário ou endereço IP — incluindo os sistemas de revisão automática do Google.\n\nA única particularidade técnica de nossa operação é o uso de uma plataforma de rastreio de cliques (tracker de performance), ferramenta amplamente utilizada no mercado de anúncios digitais para mensuração de conversões. Essa plataforma realiza um redirecionamento intermediário entre o clique no anúncio e a página de destino final. Esse redirect é transparente, não altera o conteúdo entregue ao usuário, e a URL final de destino é exatamente a mesma para qualquer visitante — humano ou automatizado.\n\nAcreditamos que o sistema automatizado de detecção pode ter interpretado esse redirect de rastreio como uma tentativa de exibir conteúdos distintos, o que não corresponde à realidade. Não há qualquer benefício em nossa operação em ocultar conteúdo do Google, pois nossa página de destino está em total conformidade com as políticas da plataforma.\n\nEstamos totalmente disponíveis para fornecer evidências adicionais, incluindo capturas de tela da página de destino acessada por diferentes origens, registros de acesso do servidor e documentação da ferramenta de rastreio utilizada.\n\nSolicitamos respeitosamente uma revisão manual da conta, considerando que a detecção pode ter ocorrido em função da arquitetura legítima de rastreio, e não de qualquer violação intencional das políticas do Google Ads.\n\nAgradecemos a atenção e permanecemos à disposição para quaisquer esclarecimentos.\n\nAtenciosamente,\nSILVA E BALTIERI CONSULTORIA FINANCEIRA LTDA",
+      "resultado": "reprovado",
+      "contas_testadas": [],
+      "observacoes": "Reprovado — abordagem: redirect legítimo de tracker, conteúdo idêntico, solicitação de revisão manual"
+    },
+    {
+      "id": 5,
+      "data": "2026-06-02",
+      "tipo_politica": "Fraude de Sistema: Técnicas de Cloaking",
+      "argumento_principal": "Auditoria técnica interna não identificou nenhuma divergência de conteúdo — solicitação de evidências específicas e revisão humana da detecção automatizada",
+      "texto": "Prezada equipe do Google Ads,\n\nVenho por meio desta solicitar uma revisão detalhada e humana da suspensão aplicada à nossa conta, classificada como Fraude de Sistema: Técnicas de Cloaking.\n\nRealizamos uma auditoria técnica completa em toda a nossa infraestrutura de anúncios — incluindo servidores, configurações de DNS, scripts de página, redirecionamentos e respostas HTTP — e não identificamos qualquer diferenciação de conteúdo entre visitantes comuns e sistemas de rastreio automatizados. Todos os acessos, independentemente de agente de usuário, IP ou origem geográfica, recebem exatamente o mesmo conteúdo.\n\nDiante desse resultado, acreditamos que a suspensão pode ter sido gerada por uma detecção automatizada incorreta. Sistemas automatizados, por sua natureza, podem produzir falsos positivos — especialmente em contas que utilizam estruturas de gerenciamento centralizado (MCC) ou ferramentas legítimas de mensuração de tráfego, que eventualmente geram padrões de acesso atípicos sem qualquer intenção fraudulenta.\n\nSolicitamos respeitosamente que nos sejam fornecidas as evidências específicas que embasaram a suspensão: URL(s) onde o comportamento de cloaking foi detectado, data e horário da detecção, e a diferença de conteúdo identificada. Essas informações são essenciais para que possamos investigar com precisão e, se necessário, corrigir qualquer configuração que tenha gerado a sinalização de forma não intencional.\n\nA empresa opera de forma transparente e legítima, com CNPJ ativo, histórico de anúncios em conformidade e investimento contínuo na plataforma. Não há qualquer incentivo ou benefício em praticar cloaking, pois nosso conteúdo publicitário está em total conformidade com as políticas do Google Ads.\n\nSolicitamos gentilmente a reativação da conta mediante revisão manual por um especialista humano, considerando que a detecção automatizada pode não refletir a realidade da nossa operação.\n\nAgradecemos a atenção e nos colocamos à disposição para apresentar qualquer documentação complementar.\n\nAtenciosamente,\nSILVA E BALTIERI CONSULTORIA FINANCEIRA LTDA",
+      "resultado": null,
+      "contas_testadas": [],
+      "observacoes": "Pendente — abordagem: contestar detecção automatizada, pedir evidências específicas (URL/data/conteúdo), solicitar revisão humana"
+    },
+    {
+      "id": 6,
+      "data": "2026-06-02",
+      "tipo_politica": "Práticas Comerciais Inaceitáveis",
+      "argumento_principal": "Empresa com CNPJ ativo, produto físico regulamentado, política de reembolso clara e processo de compra transparente — solicitação de evidência específica da violação apontada",
+      "texto": "Prezada equipe do Google Ads,\n\nSolicitamos uma nova análise da suspensão da nossa conta com base na política de Práticas Comerciais Inaceitáveis.\n\nA empresa SILVA E BALTIERI CONSULTORIA FINANCEIRA LTDA opera de forma legalmente constituída, com CNPJ ativo e regularizado perante os órgãos competentes. Comercializamos um produto físico — suplemento alimentar devidamente registrado — por meio de uma plataforma de pagamento estabelecida, com processo de compra claro e documentado.\n\nEm relação aos pontos mais comumente associados a Práticas Comerciais Inaceitáveis, esclarecemos:\n\n1. Transparência no preço e cobrança: o valor do produto é exibido de forma clara antes da finalização da compra, sem taxas ocultas ou cobranças recorrentes não autorizadas.\n\n2. Política de reembolso: oferecemos garantia de satisfação com prazo definido, comunicada ao consumidor antes da compra, em conformidade com o Código de Defesa do Consumidor.\n\n3. Afirmações sobre o produto: todas as informações divulgadas nos anúncios e páginas de destino são baseadas nas características reais do produto, sem promessas de resultados garantidos ou alegações médicas não fundamentadas.\n\n4. Identidade do anunciante: os anúncios identificam claramente o produto e a empresa responsável pela oferta, sem uso de nomes falsos ou identidades enganosas.\n\nNão conseguimos identificar, em nenhum aspecto da nossa operação, uma prática que se enquadre na política de Práticas Comerciais Inaceitáveis. Solicitamos que nos seja indicado o elemento específico — anúncio, URL ou prática — que motivou a suspensão, para que possamos analisar e corrigir imediatamente caso haja algo a ajustar.\n\nEstamos totalmente disponíveis para fornecer documentação da empresa, termos de serviço, política de reembolso e quaisquer outras informações necessárias para a revisão.\n\nSolicitamos gentilmente a reativação da conta mediante análise humana do caso.\n\nAgradecemos a atenção.\n\nAtenciosamente,\nSILVA E BALTIERI CONSULTORIA FINANCEIRA LTDA",
+      "resultado": null,
+      "contas_testadas": [],
+      "observacoes": "Pendente — abordagem: responde ponto a ponto os critérios da política, pede evidência específica, oferece documentação"
+    }
+  ],
+  "padroes_aprovados": [
+    "Divergência de login devido a MCC e a conta isolada"
+  ],
+  "padroes_reprovados": [
+    "Scripts de terceiros na infraestrutura de hospedagem podem gerar comportamento semelhante a cloaking sem intenção ou controle do anunciante",
+    "Operação legítima com informações verídicas, processo de compra transparente e suporte ativo — disponibilidade para ajustes se necessário",
+    "Uso legítimo de plataforma de rastreio com redirect transparente — conteúdo idêntico para todos os usuários, incluindo sistemas de revisão do Google"
+  ]
+}

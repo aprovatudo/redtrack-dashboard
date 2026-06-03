@@ -1,0 +1,37 @@
+name: Sync Redtrack Channels
+
+on:
+  schedule:
+    - cron: '0 * * * *'   # roda todo hora em ponto
+  workflow_dispatch:        # permite rodar manualmente pelo GitHub
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write       # permissão para fazer commit de volta
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run sync script
+        env:
+          REDTRACK_API_KEY: ${{ secrets.REDTRACK_API_KEY }}
+        run: python sync_redtrack.py
+
+      - name: Commit changes (se houver)
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add accounts_to_invite.txt last_serial.json
+          git diff --cached --quiet || git commit -m "sync: novas contas do Redtrack"
+          git push

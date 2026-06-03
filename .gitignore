@@ -1,0 +1,16 @@
+# Secrets — nunca subir para o GitHub
+.env
+credentials.json
+
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.Python
+
+# Streamlit
+.streamlit/
+
+# OS
+.DS_Store
