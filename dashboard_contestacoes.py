@@ -1,5 +1,6 @@
 import json
 import os
+import time
 from datetime import date, datetime, timedelta
 from collections import defaultdict
 import streamlit as st
@@ -13,7 +14,14 @@ load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
 ARQUIVO_CONTESTACOES = os.path.join(os.path.dirname(__file__), "contestacoes.json")
 ARQUIVO_CONTAS   = os.path.join(os.path.dirname(__file__), "accounts_to_invite.txt")
 ARQUIVO_DETALHES = os.path.join(os.path.dirname(__file__), "account_details.json")
-ARQUIVO_SERIAL   = os.path.join(os.path.dirname(__file__), "last_serial.json")
+ARQUIVO_SERIAL      = os.path.join(os.path.dirname(__file__), "last_serial.json")
+ARQUIVO_TIMESTAMPS  = os.path.join(os.path.dirname(__file__), "invite_timestamps.json")
+
+def carregar_timestamps() -> dict:
+    if not os.path.exists(ARQUIVO_TIMESTAMPS):
+        return {}
+    with open(ARQUIVO_TIMESTAMPS, encoding="utf-8") as f:
+        return json.load(f)
 
 def _ler_ultimo_serial() -> int:
     if os.path.exists(ARQUIVO_SERIAL):
@@ -117,7 +125,8 @@ def salvar_detalhes(detalhes):
         json.dump(detalhes, f, ensure_ascii=False, indent=2)
 
 def carregar_contas():
-    detalhes = carregar_detalhes()
+    detalhes   = carregar_detalhes()
+    timestamps = carregar_timestamps()
     contas = []
     with open(ARQUIVO_CONTAS, encoding="utf-8") as f:
         for line in f:
@@ -139,12 +148,20 @@ def carregar_contas():
             acc_id = parts[0].strip()
             name = parts[1].strip() if len(parts) > 1 else "?"
             d = detalhes.get(acc_id, {})
+            ts = timestamps.get(acc_id)
+            data_convite = ""
+            if ts:
+                try:
+                    data_convite = datetime.fromisoformat(ts).strftime("%d/%m/%Y")
+                except Exception:
+                    pass
             contas.append({
                 "id": acc_id,
                 "nome": name,
                 "status": status,
                 "status_conta": d.get("status_conta", ""),
                 "moeda": d.get("moeda", ""),
+                "data_convite": data_convite,
             })
     # Remove duplicatas mantendo a primeira ocorrência
     vistos = set()
@@ -266,6 +283,59 @@ def sincronizar_com_api(contas):
         return contas, atualizados, None
     except Exception as e:
         return contas, 0, str(e)
+
+def buscar_gastos_mcc(contas: list, date_from: str, date_to: str) -> dict:
+    """Retorna {acc_id: custo_usd} para contas Aceitas via Google Ads API."""
+    try:
+        resp = requests.post("https://oauth2.googleapis.com/token", data={
+            "grant_type":    "refresh_token",
+            "refresh_token": os.getenv("GOOGLE_ADS_REFRESH_TOKEN"),
+            "client_id":     os.getenv("GOOGLE_ADS_CLIENT_ID"),
+            "client_secret": os.getenv("GOOGLE_ADS_CLIENT_SECRET"),
+        }, timeout=15)
+        token  = resp.json()["access_token"]
+        MCC_ID = os.getenv("GOOGLE_ADS_MCC_ID", "").replace("-", "")
+        hdrs   = {
+            "Authorization":     f"Bearer {token}",
+            "developer-token":   os.getenv("GOOGLE_ADS_DEVELOPER_TOKEN"),
+            "login-customer-id": MCC_ID,
+            "Content-Type":      "application/json",
+        }
+    except Exception as e:
+        return {"_erro": str(e)}
+
+    gastos  = {}
+    aceitas = [c for c in contas if c["status"] == "✅ Aceito"]
+    for c in aceitas:
+        acc_clean = c["id"].replace("-", "")
+        try:
+            r = requests.post(
+                f"https://googleads.googleapis.com/v20/customers/{acc_clean}/googleAds:search",
+                headers=hdrs,
+                json={"query": f"""
+                    SELECT metrics.cost_micros
+                    FROM campaign
+                    WHERE segments.date BETWEEN '{date_from}' AND '{date_to}'
+                    AND campaign.status != 'REMOVED'
+                """},
+                timeout=10,
+            )
+            if r.status_code == 403:
+                erros    = r.json().get("error", {}).get("details", [{}])
+                auth_err = erros[0].get("errors", [{}])[0].get("errorCode", {}).get("authorizationError", "")
+                gastos[c["id"]] = "INATIVA" if auth_err == "CUSTOMER_NOT_ENABLED" else "ERRO"
+            else:
+                total_micros = sum(
+                    int(row.get("metrics", {}).get("costMicros", 0) or 0)
+                    for row in r.json().get("results", [])
+                )
+                gastos[c["id"]] = round(total_micros / 1_000_000, 2)
+        except Exception:
+            gastos[c["id"]] = "ERRO"
+        time.sleep(0.15)
+
+    return gastos
+
 
 # ── Título ───────────────────────────────────────────────
 REDTRACK_API_KEY = os.getenv("REDTRACK_API_KEY")
@@ -516,6 +586,30 @@ with aba2:
                 st.success(f"{atualizados} conta(s) atualizada(s)!")
                 st.rerun()
 
+    # Seletor de período para gastos
+    col_de, col_ate, col_btn_gastos = st.columns([1.5, 1.5, 1])
+    with col_de:
+        gastos_de = st.date_input("De", value=date.today().replace(day=1), key="gastos_de")
+    with col_ate:
+        gastos_ate = st.date_input("Até", value=date.today(), key="gastos_ate")
+    with col_btn_gastos:
+        st.write("")
+        st.write("")
+        if st.button("💰 Carregar gastos", use_container_width=True):
+            with st.spinner("Consultando gastos via API..."):
+                contas_recarregadas = carregar_contas()
+                gastos_result = buscar_gastos_mcc(
+                    contas_recarregadas,
+                    str(gastos_de),
+                    str(gastos_ate),
+                )
+                st.session_state["gastos_contas"] = gastos_result
+                st.session_state["gastos_periodo"] = f"{gastos_de.strftime('%d/%m')} – {gastos_ate.strftime('%d/%m/%Y')}"
+            st.success("Gastos carregados!")
+
+    gastos_map = st.session_state.get("gastos_contas", {})
+    gastos_periodo_label = st.session_state.get("gastos_periodo", "")
+
     total_c = len(contas)
     aceitos = sum(1 for c in contas if c["status"] == "✅ Aceito")
     pendentes_c = sum(1 for c in contas if c["status"] == "⏳ Pendente")
@@ -618,40 +712,65 @@ with aba2:
         st.rerun()
 
     # Tabela
-    col_h1, col_h2, col_h3, col_h4, col_h5 = st.columns([2, 3, 2, 2, 2])
+    gastos_header = f"**Gastos** {'(' + gastos_periodo_label + ')' if gastos_periodo_label else ''}"
+    col_h1, col_h2, col_h3, col_h4, col_h5, col_h6, col_h7 = st.columns([2, 3, 1.5, 1.5, 1.5, 1.5, 2])
     col_h1.markdown("**ID**")
     col_h2.markdown("**Nome**")
     col_h3.markdown("**Convite**")
-    col_h4.markdown("**Conta**")
-    col_h5.markdown("**Alterar status**")
+    col_h4.markdown("**Data convite**")
+    col_h5.markdown(gastos_header)
+    col_h6.markdown("**Conta**")
+    col_h7.markdown("**Alterar status**")
 
     opcoes = ["✅ Aceito", "⏳ Pendente", "📤 Não enviado", "🚫 Suspensa"]
 
     for c in filtradas:
-        col1, col2, col3, col4, col5 = st.columns([2, 3, 2, 2, 2])
+        col1, col2, col3, col4, col5, col6, col7 = st.columns([2, 3, 1.5, 1.5, 1.5, 1.5, 2])
         col1.write(c["id"])
         col2.write(c["nome"])
 
-        # Convite: se conta suspensa manualmente, convite é Nulo
+        # Convite
         if c["status"] == "🚫 Suspensa":
             col3.write("— Nulo")
         else:
             col3.write(c["status"])
 
+        # Data convite
+        col4.write(c.get("data_convite") or "—")
+
+        # Gastos
+        gasto_val = gastos_map.get(c["id"])
+        if gasto_val == "INATIVA":
+            col5.write("⚠️ Inativa")
+        elif gasto_val == "ERRO":
+            col5.write("❌ Erro")
+        elif isinstance(gasto_val, (int, float)):
+            col5.write(f"${gasto_val:,.2f}")
+        else:
+            col5.write("—")
+
         # Conta: status via API ou suspensa manualmente
         status_conta = c.get("status_conta", "")
         moeda = c.get("moeda", "")
         if c["status"] == "🚫 Suspensa":
-            col4.write("🔴 Suspensa")
+            col6.write("🔴 Suspensa")
         elif status_conta:
             label, _ = STATUS_CONTA.get(status_conta, (f"❓ {status_conta}", "normal"))
-            col4.write(f"{label}  {moeda}")
+            col6.write(f"{label}  {moeda}")
         else:
-            col4.write("—")
+            col6.write("—")
 
-        with col5:
+        with col7:
             idx = opcoes.index(c["status"]) if c["status"] in opcoes else 2
             st.selectbox("", opcoes, index=idx, key=f"sel_{c['id']}", label_visibility="collapsed")
+
+    # Linha de total dos gastos
+    if gastos_map:
+        total_gastos = sum(v for c in filtradas if isinstance(v := gastos_map.get(c["id"], 0), (int, float)))
+        st.divider()
+        col_t1, col_t2, col_t3, col_t4, col_t5, col_t6, col_t7 = st.columns([2, 3, 1.5, 1.5, 1.5, 1.5, 2])
+        col_t2.markdown(f"**Total ({len(filtradas)} contas)**")
+        col_t5.markdown(f"**${total_gastos:,.2f}**")
 
 
 # ════════════════════════════════════════════════════════

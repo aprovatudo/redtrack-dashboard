@@ -1,14 +1,14 @@
 {
   "594-672-4209": {
-    "status_conta": "ENABLED",
+    "status_conta": "CANCELED",
     "moeda": "BRL"
   },
   "419-430-7121": {
-    "status_conta": "SUSPENDED",
+    "status_conta": "CANCELED",
     "moeda": "BRL"
   },
   "465-498-4315": {
-    "status_conta": "SUSPENDED",
+    "status_conta": "CANCELED",
     "moeda": "USD"
   },
   "438-916-6805": {
@@ -28,7 +28,7 @@
     "moeda": "BRL"
   },
   "600-777-4817": {
-    "status_conta": "ENABLED",
+    "status_conta": "SUSPENDED",
     "moeda": "BRL"
   },
   "147-612-1748": {
@@ -52,7 +52,7 @@
     "moeda": "BRL"
   },
   "440-900-2845": {
-    "status_conta": "ENABLED",
+    "status_conta": "SUSPENDED",
     "moeda": "BRL"
   },
   "175-887-1045": {
@@ -76,7 +76,7 @@
     "moeda": "USD"
   },
   "321-199-3766": {
-    "status_conta": "SUSPENDED",
+    "status_conta": "ENABLED",
     "moeda": "USD"
   },
   "505-677-9305": {
@@ -92,11 +92,11 @@
     "moeda": "USD"
   },
   "492-240-9500": {
-    "status_conta": "SUSPENDED",
+    "status_conta": "CANCELED",
     "moeda": "USD"
   },
   "862-755-4372": {
-    "status_conta": "ENABLED",
+    "status_conta": "CANCELED",
     "moeda": "USD"
   },
   "500-984-1401": {
@@ -108,19 +108,19 @@
     "moeda": "USD"
   },
   "268-625-7152": {
-    "status_conta": "ENABLED",
+    "status_conta": "CANCELED",
     "moeda": "USD"
   },
   "441-895-4484": {
-    "status_conta": "ENABLED",
+    "status_conta": "CANCELED",
     "moeda": "USD"
   },
   "966-215-3556": {
-    "status_conta": "ENABLED",
+    "status_conta": "CANCELED",
     "moeda": "BRL"
   },
   "642-492-8052": {
-    "status_conta": "ENABLED",
+    "status_conta": "CANCELED",
     "moeda": "BRL"
   },
   "363-282-0133": {
@@ -128,7 +128,7 @@
     "moeda": "BRL"
   },
   "353-098-8994": {
-    "status_conta": "ENABLED",
+    "status_conta": "CANCELED",
     "moeda": "BRL"
   },
   "775-405-8097": {
@@ -144,7 +144,7 @@
     "moeda": "BRL"
   },
   "739-918-3982": {
-    "status_conta": "SUSPENDED",
+    "status_conta": "CANCELED",
     "moeda": "USD"
   },
   "477-989-2425": {
@@ -156,19 +156,19 @@
     "moeda": "USD"
   },
   "141-253-0019": {
-    "status_conta": "ENABLED",
-    "moeda": "USD"
-  },
-  "563-245-0880": {
     "status_conta": "SUSPENDED",
     "moeda": "USD"
   },
+  "563-245-0880": {
+    "status_conta": "CANCELED",
+    "moeda": "USD"
+  },
   "430-835-6690": {
-    "status_conta": "ENABLED",
+    "status_conta": "SUSPENDED",
     "moeda": "BRL"
   },
   "861-315-5119": {
-    "status_conta": "ENABLED",
+    "status_conta": "SUSPENDED",
     "moeda": "BRL"
   },
   "837-197-8792": {
@@ -188,7 +188,7 @@
     "moeda": "BRL"
   },
   "954-672-0913": {
-    "status_conta": "ENABLED",
+    "status_conta": "SUSPENDED",
     "moeda": "BRL"
   },
   "816-737-2690": {
@@ -200,7 +200,7 @@
     "moeda": "USD"
   },
   "826-338-0195": {
-    "status_conta": "ENABLED",
+    "status_conta": "SUSPENDED",
     "moeda": "USD"
   },
   "447-526-4288": {
@@ -256,6 +256,206 @@
     "moeda": "USD"
   },
   "808-343-3243": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "303-255-3717": {
+    "status_conta": "ENABLED",
+    "moeda": "BRL"
+  },
+  "335-351-1225": {
+    "status_conta": "CANCELED",
+    "moeda": "USD"
+  },
+  "263-015-9095": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "238-365-5639": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "985-024-8611": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "433-580-0880": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "902-804-4297": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "435-091-8848": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "345-504-3521": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "191-633-1113": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "763-315-3076": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "221-271-4596": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "970-652-1046": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "464-457-7768": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "477-629-2164": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "692-316-9364": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "857-460-4642": {
+    "status_conta": "SUSPENDED",
+    "moeda": "USD"
+  },
+  "532-620-5588": {
+    "status_conta": "ENABLED",
+    "moeda": "BRL"
+  },
+  "903-278-2252": {
+    "status_conta": "ENABLED",
+    "moeda": "BRL"
+  },
+  "276-108-6595": {
+    "status_conta": "ENABLED",
+    "moeda": "BRL"
+  },
+  "203-755-7619": {
+    "status_conta": "ENABLED",
+    "moeda": "BRL"
+  },
+  "424-360-1696": {
+    "status_conta": "ENABLED",
+    "moeda": "BRL"
+  },
+  "855-699-4654": {
+    "status_conta": "ENABLED",
+    "moeda": "BRL"
+  },
+  "191-615-0480": {
+    "status_conta": "ENABLED",
+    "moeda": "BRL"
+  },
+  "682-704-1743": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "891-712-7807": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "400-929-9666": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "420-087-6837": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "270-754-9552": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "746-661-5221": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "416-568-5431": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "979-177-4993": {
+    "status_conta": "ENABLED",
+    "moeda": "BRL"
+  },
+  "147-833-7482": {
+    "status_conta": "ENABLED",
+    "moeda": "BRL"
+  },
+  "287-247-5925": {
+    "status_conta": "ENABLED",
+    "moeda": "BRL"
+  },
+  "825-839-0662": {
+    "status_conta": "ENABLED",
+    "moeda": "BRL"
+  },
+  "522-600-7670": {
+    "status_conta": "ENABLED",
+    "moeda": "BRL"
+  },
+  "119-590-7884": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "543-142-8948": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "659-607-8033": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "705-298-1882": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "916-860-9425": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "714-926-0813": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "659-454-3164": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "221-248-7621": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "652-469-1833": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "451-998-8339": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "126-553-2170": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "889-169-9813": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "123-190-5894": {
+    "status_conta": "ENABLED",
+    "moeda": "USD"
+  },
+  "105-009-2135": {
     "status_conta": "ENABLED",
     "moeda": "USD"
   }
