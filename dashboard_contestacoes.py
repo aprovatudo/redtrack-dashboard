@@ -209,7 +209,7 @@ def sincronizar_com_api(contas):
             "login-customer-id": MCC_ID,
             "Content-Type": "application/json",
         }
-        base_url = f"https://googleads.googleapis.com/v20/customers/{MCC_ID}/googleAds:search"
+        base_url = f"https://googleads.googleapis.com/v21/customers/{MCC_ID}/googleAds:search"
 
         # 1. Busca status dos convites
         r = requests.post(base_url, headers=headers, json={"query": """
@@ -310,7 +310,7 @@ def buscar_gastos_mcc(contas: list, date_from: str, date_to: str) -> dict:
         acc_clean = c["id"].replace("-", "")
         try:
             r = requests.post(
-                f"https://googleads.googleapis.com/v20/customers/{acc_clean}/googleAds:search",
+                f"https://googleads.googleapis.com/v21/customers/{acc_clean}/googleAds:search",
                 headers=hdrs,
                 json={"query": f"""
                     SELECT metrics.cost_micros

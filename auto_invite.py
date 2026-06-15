@@ -10,6 +10,9 @@ import json
 import time
 import requests
 from datetime import datetime, timezone, timedelta
+from dotenv import load_dotenv
+
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
 
 ARQUIVO_CONTAS     = os.path.join(os.path.dirname(__file__), "accounts_to_invite.txt")
 ARQUIVO_TIMESTAMPS = os.path.join(os.path.dirname(__file__), "invite_timestamps.json")
@@ -18,7 +21,7 @@ DEV_TOKEN          = os.environ.get("GOOGLE_ADS_DEVELOPER_TOKEN", "")
 CLIENT_ID          = os.environ.get("GOOGLE_ADS_CLIENT_ID", "")
 CLIENT_SECRET      = os.environ.get("GOOGLE_ADS_CLIENT_SECRET", "")
 REFRESH_TOKEN      = os.environ.get("GOOGLE_ADS_REFRESH_TOKEN", "")
-BASE_ADS           = "https://googleads.googleapis.com/v20"
+BASE_ADS           = "https://googleads.googleapis.com/v21"
 PENDING_MAX_HORAS  = 24   # cancela após 1 dia
 
 
