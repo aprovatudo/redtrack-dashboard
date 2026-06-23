@@ -656,12 +656,51 @@ elif pagina == "🔗 Convites MCC":
                 st.success(f"{atualizados} conta(s) atualizada(s)!")
                 st.rerun()
 
-    # Seletor de período para gastos — carrega automaticamente ao mudar data
-    col_de, col_ate = st.columns([1.5, 1.5])
-    with col_de:
-        gastos_de = st.date_input("De", value=date.today().replace(day=1), key="gastos_de")
-    with col_ate:
-        gastos_ate = st.date_input("Até", value=date.today(), key="gastos_ate")
+    # ── Seletor de período com presets ───────────────────
+    _h = date.today()
+    _seg = _h - timedelta(days=_h.weekday())
+    _seg_ant = _seg - timedelta(days=7)
+    _ini_mes_ant = (_h.replace(day=1) - timedelta(days=1)).replace(day=1)
+    _fim_mes_ant = _h.replace(day=1) - timedelta(days=1)
+
+    _presets = {
+        "Hoje":           (_h, _h),
+        "Ontem":          (_h - timedelta(1), _h - timedelta(1)),
+        "Esta semana":    (_seg, _h),
+        "Últ. 7 dias":    (_h - timedelta(7), _h),
+        "Sem. passada":   (_seg_ant, _seg_ant + timedelta(6)),
+        "Este mês":       (_h.replace(day=1), _h),
+        "Últ. 30 dias":   (_h - timedelta(30), _h),
+        "Mês passado":    (_ini_mes_ant, _fim_mes_ant),
+        "Personalizado":  None,
+    }
+
+    if "gastos_preset" not in st.session_state:
+        st.session_state["gastos_preset"] = "Este mês"
+
+    _pcols = st.columns(len(_presets))
+    for i, (lbl, _) in enumerate(_presets.items()):
+        with _pcols[i]:
+            _ativo = st.session_state["gastos_preset"] == lbl
+            if st.button(lbl, key=f"gp_{lbl}",
+                         type="primary" if _ativo else "secondary",
+                         use_container_width=True):
+                st.session_state["gastos_preset"] = lbl
+                st.rerun()
+
+    _sel = st.session_state["gastos_preset"]
+    if _sel == "Personalizado":
+        _range = st.date_input(
+            "Selecione o intervalo",
+            value=(_h.replace(day=1), _h),
+            key="gastos_range_custom",
+            label_visibility="collapsed",
+        )
+        gastos_de  = _range[0]
+        gastos_ate = _range[1] if len(_range) == 2 else _range[0]
+    else:
+        gastos_de, gastos_ate = _presets[_sel]
+        st.caption(f"📅 {gastos_de.strftime('%d/%m/%Y')} — {gastos_ate.strftime('%d/%m/%Y')}")
 
     _de_str  = str(gastos_de)
     _ate_str = str(gastos_ate)
