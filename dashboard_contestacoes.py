@@ -3,6 +3,7 @@ import os
 import time
 from datetime import date, datetime, timedelta
 from collections import defaultdict
+import pandas as pd
 import streamlit as st
 import requests
 import plotly.graph_objects as go
@@ -416,16 +417,85 @@ def rt_agregar_por_hora(conversoes: list, offer_ids: set) -> dict:
     return dict(por_hora)
 
 
-# ── Título ───────────────────────────────────────────────
-st.title("📊 Dashboard Google Ads")
+# ── CSS ──────────────────────────────────────────────────
+st.markdown("""
+<style>
+#MainMenu, footer { visibility: hidden; }
+.main .block-container {
+    padding-top: 2rem !important;
+    padding-left: 2.5rem !important;
+    padding-right: 2.5rem !important;
+    max-width: 100% !important;
+}
+/* Sidebar */
+section[data-testid="stSidebar"] > div:first-child {
+    background: #0c0c18 !important;
+    padding-top: 1.5rem;
+    border-right: 1px solid #1a1a2e;
+}
+/* Métricas */
+[data-testid="stMetric"] {
+    background: #13131f;
+    border: 1px solid #1e1e30;
+    border-radius: 12px;
+    padding: 1rem 1.2rem !important;
+}
+[data-testid="stMetricLabel"] p {
+    color: #888 !important;
+    font-size: 0.73rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+}
+[data-testid="stMetricValue"] { font-size: 1.9rem !important; font-weight: 700; }
+/* Botões */
+.stButton > button { border-radius: 8px !important; font-weight: 600 !important; }
+.stButton > button[kind="primary"] {
+    background: linear-gradient(135deg, #6c63ff, #4a90e2) !important;
+    border: none !important;
+}
+.stButton > button:hover { opacity: 0.82; }
+/* Progress */
+[data-testid="stProgressBar"] > div > div {
+    background: linear-gradient(90deg, #6c63ff, #4ecdc4) !important;
+    border-radius: 99px;
+}
+/* Data editor */
+[data-testid="stDataFrameResizable"] {
+    border: 1px solid #1e1e30 !important;
+    border-radius: 10px;
+    overflow: hidden;
+}
+/* Expanders */
+[data-testid="stExpander"] {
+    border: 1px solid #1e1e30 !important;
+    border-radius: 10px !important;
+}
+/* Divider */
+hr { border-color: #1e1e30 !important; margin: 0.8rem 0 !important; }
+/* Inputs */
+[data-testid="stTextInput"] > div > div > input {
+    border-radius: 8px !important;
+    background: #13131f !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
-aba1, aba2, aba3 = st.tabs(["📋 Contestações", "🔗 Convites MCC", "📈 Click Time"])
+# ── Sidebar ───────────────────────────────────────────────
+with st.sidebar:
+    st.markdown("### 📊 Google Ads")
+    st.caption("Dashboard de controle")
+    st.divider()
+    pagina = st.radio(
+        "nav",
+        ["📋 Contestações", "🔗 Convites MCC", "📈 Click Time"],
+        label_visibility="collapsed",
+    )
 
 
 # ════════════════════════════════════════════════════════
-# ABA 1 — CONTESTAÇÕES
+# PÁGINA 1 — CONTESTAÇÕES
 # ════════════════════════════════════════════════════════
-with aba1:
+if pagina == "📋 Contestações":
     dados = carregar()
     historico = dados["historico"]
 
@@ -559,9 +629,9 @@ with aba1:
 
 
 # ════════════════════════════════════════════════════════
-# ABA 2 — CONVITES MCC
+# PÁGINA 2 — CONVITES MCC
 # ════════════════════════════════════════════════════════
-with aba2:
+elif pagina == "🔗 Convites MCC":
     # Auto-sync silencioso: detecta e adiciona novas contas do Redtrack
     _novas = _sync_novas_contas_redtrack()
     if _novas > 0:
@@ -687,96 +757,95 @@ with aba2:
 
     st.divider()
 
-    # Botão de salvar — sempre visível, lê o session_state de TODAS as contas
-    col_save_label, col_save_btn = st.columns([3, 1])
-    col_save_label.caption("Altere os status na tabela abaixo e clique em Salvar para confirmar.")
+    # ── Tabela com data_editor ────────────────────────────
+    opcoes = ["✅ Aceito", "⏳ Pendente", "📤 Não enviado", "🚫 Suspensa"]
+    gastos_col = f"Gastos {'(' + gastos_periodo_label + ')' if gastos_periodo_label else ''}"
+
+    rows = []
+    for c in filtradas:
+        gasto_val = gastos_map.get(c["id"])
+        if gasto_val == "INATIVA":
+            g = "⚠️ Inativa"
+        elif gasto_val == "ERRO":
+            g = "❌ Erro"
+        elif isinstance(gasto_val, (int, float)):
+            g = f"${gasto_val:,.2f}"
+        else:
+            g = "—"
+
+        sc = c.get("status_conta", "")
+        moeda = c.get("moeda", "")
+        if c["status"] == "🚫 Suspensa":
+            conta_str = "🔴 Suspensa"
+        elif sc:
+            lbl, _ = STATUS_CONTA.get(sc, (f"❓ {sc}", "normal"))
+            conta_str = f"{lbl} {moeda}".strip()
+        else:
+            conta_str = "—"
+
+        rows.append({
+            "ID":           c["id"],
+            "Nome":         c["nome"],
+            "Convite":      "— Nulo" if c["status"] == "🚫 Suspensa" else c["status"],
+            "Data convite": c.get("data_convite") or "—",
+            gastos_col:     g,
+            "Conta":        conta_str,
+            "Status":       c["status"],
+        })
+
+    df_mcc = pd.DataFrame(rows) if rows else pd.DataFrame(
+        columns=["ID", "Nome", "Convite", "Data convite", gastos_col, "Conta", "Status"]
+    )
+
+    if "editor_v" not in st.session_state:
+        st.session_state["editor_v"] = 0
+
+    edited_df = st.data_editor(
+        df_mcc,
+        column_config={
+            "ID":          st.column_config.TextColumn("ID",           disabled=True, width="medium"),
+            "Nome":        st.column_config.TextColumn("Nome",         disabled=True, width="large"),
+            "Convite":     st.column_config.TextColumn("Convite",      disabled=True, width="medium"),
+            "Data convite":st.column_config.TextColumn("Data convite", disabled=True, width="small"),
+            gastos_col:    st.column_config.TextColumn(gastos_col,     disabled=True, width="small"),
+            "Conta":       st.column_config.TextColumn("Conta",        disabled=True, width="medium"),
+            "Status":      st.column_config.SelectboxColumn(
+                               "Alterar status", options=opcoes, width="medium"
+                           ),
+        },
+        hide_index=True,
+        use_container_width=True,
+        key=f"editor_mcc_{st.session_state['editor_v']}",
+    )
+
+    if gastos_map:
+        total_gastos = sum(v for c in filtradas if isinstance(v := gastos_map.get(c["id"], 0), (int, float)))
+        st.caption(f"Total gastos — **${total_gastos:,.2f}** ({len(filtradas)} contas)")
+
+    st.divider()
+    col_info, col_save_btn = st.columns([3, 1])
+    col_info.caption("Edite o status na coluna 'Alterar status' e clique em Salvar.")
     if col_save_btn.button("💾 Salvar alterações", use_container_width=True, type="primary", key="btn_salvar_tabela"):
+        id_to_novo = dict(zip(edited_df["ID"], edited_df["Status"]))
         alterados = 0
         for conta in contas:
-            key = f"sel_{conta['id']}"
-            if key in st.session_state:
-                novo = st.session_state[key]
-                if novo != conta["status"]:
-                    conta["status"] = novo
-                    alterados += 1
+            novo = id_to_novo.get(conta["id"])
+            if novo and novo != conta["status"]:
+                conta["status"] = novo
+                alterados += 1
         salvar_contas(contas)
-        # Limpa session state dos selectboxes para refletir o novo estado salvo
-        for conta in contas:
-            key = f"sel_{conta['id']}"
-            if key in st.session_state:
-                del st.session_state[key]
+        st.session_state["editor_v"] += 1
         if alterados:
             st.success(f"{alterados} conta(s) atualizada(s)!")
         else:
             st.info("Nenhuma alteração detectada.")
         st.rerun()
 
-    # Tabela
-    gastos_header = f"**Gastos** {'(' + gastos_periodo_label + ')' if gastos_periodo_label else ''}"
-    col_h1, col_h2, col_h3, col_h4, col_h5, col_h6, col_h7 = st.columns([2, 3, 1.5, 1.5, 1.5, 1.5, 2])
-    col_h1.markdown("**ID**")
-    col_h2.markdown("**Nome**")
-    col_h3.markdown("**Convite**")
-    col_h4.markdown("**Data convite**")
-    col_h5.markdown(gastos_header)
-    col_h6.markdown("**Conta**")
-    col_h7.markdown("**Alterar status**")
-
-    opcoes = ["✅ Aceito", "⏳ Pendente", "📤 Não enviado", "🚫 Suspensa"]
-
-    for c in filtradas:
-        col1, col2, col3, col4, col5, col6, col7 = st.columns([2, 3, 1.5, 1.5, 1.5, 1.5, 2])
-        col1.write(c["id"])
-        col2.write(c["nome"])
-
-        # Convite
-        if c["status"] == "🚫 Suspensa":
-            col3.write("— Nulo")
-        else:
-            col3.write(c["status"])
-
-        # Data convite
-        col4.write(c.get("data_convite") or "—")
-
-        # Gastos
-        gasto_val = gastos_map.get(c["id"])
-        if gasto_val == "INATIVA":
-            col5.write("⚠️ Inativa")
-        elif gasto_val == "ERRO":
-            col5.write("❌ Erro")
-        elif isinstance(gasto_val, (int, float)):
-            col5.write(f"${gasto_val:,.2f}")
-        else:
-            col5.write("—")
-
-        # Conta: status via API ou suspensa manualmente
-        status_conta = c.get("status_conta", "")
-        moeda = c.get("moeda", "")
-        if c["status"] == "🚫 Suspensa":
-            col6.write("🔴 Suspensa")
-        elif status_conta:
-            label, _ = STATUS_CONTA.get(status_conta, (f"❓ {status_conta}", "normal"))
-            col6.write(f"{label}  {moeda}")
-        else:
-            col6.write("—")
-
-        with col7:
-            idx = opcoes.index(c["status"]) if c["status"] in opcoes else 2
-            st.selectbox("", opcoes, index=idx, key=f"sel_{c['id']}", label_visibility="collapsed")
-
-    # Linha de total dos gastos
-    if gastos_map:
-        total_gastos = sum(v for c in filtradas if isinstance(v := gastos_map.get(c["id"], 0), (int, float)))
-        st.divider()
-        col_t1, col_t2, col_t3, col_t4, col_t5, col_t6, col_t7 = st.columns([2, 3, 1.5, 1.5, 1.5, 1.5, 2])
-        col_t2.markdown(f"**Total ({len(filtradas)} contas)**")
-        col_t5.markdown(f"**${total_gastos:,.2f}**")
-
 
 # ════════════════════════════════════════════════════════
-# ABA 3 — CLICK TIME
+# PÁGINA 3 — CLICK TIME
 # ════════════════════════════════════════════════════════
-with aba3:
+elif pagina == "📈 Click Time":
     st.subheader("ROI por Hora do Clique")
     st.caption("Receita e custo agrupados pelo horário em que o clique aconteceu (não a compra)")
 
