@@ -284,6 +284,64 @@ def sincronizar_com_api(contas):
     except Exception as e:
         return contas, 0, str(e)
 
+def buscar_pagamentos_mcc(contas: list) -> dict:
+    """Retorna {acc_id: str} com tipo de pagamento para contas Aceitas."""
+    try:
+        resp = requests.post("https://oauth2.googleapis.com/token", data={
+            "grant_type":    "refresh_token",
+            "refresh_token": os.getenv("GOOGLE_ADS_REFRESH_TOKEN"),
+            "client_id":     os.getenv("GOOGLE_ADS_CLIENT_ID"),
+            "client_secret": os.getenv("GOOGLE_ADS_CLIENT_SECRET"),
+        }, timeout=15)
+        token  = resp.json()["access_token"]
+        MCC_ID = os.getenv("GOOGLE_ADS_MCC_ID", "").replace("-", "")
+        hdrs   = {
+            "Authorization":     f"Bearer {token}",
+            "developer-token":   os.getenv("GOOGLE_ADS_DEVELOPER_TOKEN"),
+            "login-customer-id": MCC_ID,
+            "Content-Type":      "application/json",
+        }
+    except Exception as e:
+        return {"_erro": str(e)}
+
+    TIPOS = {
+        "AUTOMATIC":           "💳 Automático",
+        "MANUAL_CREDIT_CARD":  "🧾 Manual",
+        "MANUAL_ACH":          "🧾 Manual",
+        "MANUAL_CHECK":        "🧾 Manual",
+        "MONTHLY_INVOICING":   "📄 Fatura",
+    }
+
+    pagamentos = {}
+    aceitas = [c for c in contas if c["status"] == "✅ Aceito"]
+    for c in aceitas:
+        acc_clean = c["id"].replace("-", "")
+        try:
+            r = requests.post(
+                f"https://googleads.googleapis.com/v21/customers/{acc_clean}/googleAds:search",
+                headers=hdrs,
+                json={"query": """
+                    SELECT billing_setup.payment_method_type, billing_setup.status
+                    FROM billing_setup
+                    WHERE billing_setup.status = APPROVED
+                """},
+                timeout=10,
+            )
+            results = r.json().get("results", [])
+            if results:
+                pmt = results[0].get("billingSetup", {}).get("paymentMethodType", "")
+                pagamentos[c["id"]] = TIPOS.get(pmt, pmt or "—")
+            elif r.status_code == 403:
+                pagamentos[c["id"]] = "🔒 Sem acesso"
+            else:
+                pagamentos[c["id"]] = "—"
+        except Exception:
+            pagamentos[c["id"]] = "❌ Erro"
+        time.sleep(0.15)
+
+    return pagamentos
+
+
 def buscar_gastos_mcc(contas: list, date_from: str, date_to: str) -> dict:
     """Retorna {acc_id: custo_usd} para contas Aceitas via Google Ads API."""
     try:
@@ -587,7 +645,7 @@ with aba2:
                 st.rerun()
 
     # Seletor de período para gastos
-    col_de, col_ate, col_btn_gastos = st.columns([1.5, 1.5, 1])
+    col_de, col_ate, col_btn_gastos, col_btn_pag = st.columns([1.5, 1.5, 1, 1])
     with col_de:
         gastos_de = st.date_input("De", value=date.today().replace(day=1), key="gastos_de")
     with col_ate:
@@ -606,9 +664,19 @@ with aba2:
                 st.session_state["gastos_contas"] = gastos_result
                 st.session_state["gastos_periodo"] = f"{gastos_de.strftime('%d/%m')} – {gastos_ate.strftime('%d/%m/%Y')}"
             st.success("Gastos carregados!")
+    with col_btn_pag:
+        st.write("")
+        st.write("")
+        if st.button("💳 Carregar pagamentos", use_container_width=True):
+            with st.spinner("Consultando forma de pagamento..."):
+                contas_recarregadas = carregar_contas()
+                pag_result = buscar_pagamentos_mcc(contas_recarregadas)
+                st.session_state["pagamentos_contas"] = pag_result
+            st.success("Pagamentos carregados!")
 
     gastos_map = st.session_state.get("gastos_contas", {})
     gastos_periodo_label = st.session_state.get("gastos_periodo", "")
+    pagamentos_map = st.session_state.get("pagamentos_contas", {})
 
     total_c = len(contas)
     aceitos = sum(1 for c in contas if c["status"] == "✅ Aceito")
@@ -713,19 +781,20 @@ with aba2:
 
     # Tabela
     gastos_header = f"**Gastos** {'(' + gastos_periodo_label + ')' if gastos_periodo_label else ''}"
-    col_h1, col_h2, col_h3, col_h4, col_h5, col_h6, col_h7 = st.columns([2, 3, 1.5, 1.5, 1.5, 1.5, 2])
+    col_h1, col_h2, col_h3, col_h4, col_h5, col_h6, col_h7, col_h8 = st.columns([2, 2.5, 1.3, 1.3, 1.3, 1.5, 1.5, 2])
     col_h1.markdown("**ID**")
     col_h2.markdown("**Nome**")
     col_h3.markdown("**Convite**")
     col_h4.markdown("**Data convite**")
     col_h5.markdown(gastos_header)
-    col_h6.markdown("**Conta**")
-    col_h7.markdown("**Alterar status**")
+    col_h6.markdown("**Pagamento**")
+    col_h7.markdown("**Conta**")
+    col_h8.markdown("**Alterar status**")
 
     opcoes = ["✅ Aceito", "⏳ Pendente", "📤 Não enviado", "🚫 Suspensa"]
 
     for c in filtradas:
-        col1, col2, col3, col4, col5, col6, col7 = st.columns([2, 3, 1.5, 1.5, 1.5, 1.5, 2])
+        col1, col2, col3, col4, col5, col6, col7, col8 = st.columns([2, 2.5, 1.3, 1.3, 1.3, 1.5, 1.5, 2])
         col1.write(c["id"])
         col2.write(c["nome"])
 
@@ -749,18 +818,21 @@ with aba2:
         else:
             col5.write("—")
 
+        # Pagamento
+        col6.write(pagamentos_map.get(c["id"], "—"))
+
         # Conta: status via API ou suspensa manualmente
         status_conta = c.get("status_conta", "")
         moeda = c.get("moeda", "")
         if c["status"] == "🚫 Suspensa":
-            col6.write("🔴 Suspensa")
+            col7.write("🔴 Suspensa")
         elif status_conta:
             label, _ = STATUS_CONTA.get(status_conta, (f"❓ {status_conta}", "normal"))
-            col6.write(f"{label}  {moeda}")
+            col7.write(f"{label}  {moeda}")
         else:
-            col6.write("—")
+            col7.write("—")
 
-        with col7:
+        with col8:
             idx = opcoes.index(c["status"]) if c["status"] in opcoes else 2
             st.selectbox("", opcoes, index=idx, key=f"sel_{c['id']}", label_visibility="collapsed")
 
@@ -768,7 +840,7 @@ with aba2:
     if gastos_map:
         total_gastos = sum(v for c in filtradas if isinstance(v := gastos_map.get(c["id"], 0), (int, float)))
         st.divider()
-        col_t1, col_t2, col_t3, col_t4, col_t5, col_t6, col_t7 = st.columns([2, 3, 1.5, 1.5, 1.5, 1.5, 2])
+        col_t1, col_t2, col_t3, col_t4, col_t5, col_t6, col_t7, col_t8 = st.columns([2, 2.5, 1.3, 1.3, 1.3, 1.5, 1.5, 2])
         col_t2.markdown(f"**Total ({len(filtradas)} contas)**")
         col_t5.markdown(f"**${total_gastos:,.2f}**")
 
