@@ -656,26 +656,24 @@ elif pagina == "🔗 Convites MCC":
                 st.success(f"{atualizados} conta(s) atualizada(s)!")
                 st.rerun()
 
-    # Seletor de período para gastos
-    col_de, col_ate, col_btn_gastos = st.columns([1.5, 1.5, 1])
+    # Seletor de período para gastos — carrega automaticamente ao mudar data
+    col_de, col_ate = st.columns([1.5, 1.5])
     with col_de:
         gastos_de = st.date_input("De", value=date.today().replace(day=1), key="gastos_de")
     with col_ate:
         gastos_ate = st.date_input("Até", value=date.today(), key="gastos_ate")
-    with col_btn_gastos:
-        st.write("")
-        st.write("")
-        if st.button("💰 Carregar gastos", use_container_width=True):
-            with st.spinner("Consultando gastos via API..."):
-                contas_recarregadas = carregar_contas()
-                gastos_result = buscar_gastos_mcc(
-                    contas_recarregadas,
-                    str(gastos_de),
-                    str(gastos_ate),
-                )
-                st.session_state["gastos_contas"] = gastos_result
-                st.session_state["gastos_periodo"] = f"{gastos_de.strftime('%d/%m')} – {gastos_ate.strftime('%d/%m/%Y')}"
-            st.success("Gastos carregados!")
+
+    _de_str  = str(gastos_de)
+    _ate_str = str(gastos_ate)
+    if (_de_str != st.session_state.get("gastos_ultimo_de") or
+            _ate_str != st.session_state.get("gastos_ultimo_ate")):
+        with st.spinner("Carregando gastos..."):
+            _contas_tmp = carregar_contas()
+            gastos_result = buscar_gastos_mcc(_contas_tmp, _de_str, _ate_str)
+            st.session_state["gastos_contas"]    = gastos_result
+            st.session_state["gastos_periodo"]   = f"{gastos_de.strftime('%d/%m')} – {gastos_ate.strftime('%d/%m/%Y')}"
+            st.session_state["gastos_ultimo_de"]  = _de_str
+            st.session_state["gastos_ultimo_ate"] = _ate_str
 
     gastos_map = st.session_state.get("gastos_contas", {})
     gastos_periodo_label = st.session_state.get("gastos_periodo", "")
