@@ -324,16 +324,21 @@ def buscar_pagamentos_mcc(contas: list) -> dict:
                 json={"query": """
                     SELECT billing_setup.payment_method_type, billing_setup.status
                     FROM billing_setup
-                    WHERE billing_setup.status = APPROVED
                 """},
                 timeout=10,
             )
-            results = r.json().get("results", [])
-            if results:
-                pmt = results[0].get("billingSetup", {}).get("paymentMethodType", "")
-                return c["id"], TIPOS.get(pmt, pmt or "—")
             if r.status_code == 403:
                 return c["id"], "🔒 Sem acesso"
+            results = r.json().get("results", [])
+            # Prefere APPROVED; senão pega o primeiro disponível
+            aprovado = next(
+                (row for row in results
+                 if row.get("billingSetup", {}).get("status") == "APPROVED"),
+                results[0] if results else None,
+            )
+            if aprovado:
+                pmt = aprovado.get("billingSetup", {}).get("paymentMethodType", "")
+                return c["id"], TIPOS.get(pmt, pmt or "—")
             return c["id"], "—"
         except Exception:
             return c["id"], "❌ Erro"
