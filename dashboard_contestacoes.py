@@ -1,6 +1,7 @@
 import json
 import os
 import time
+from concurrent import futures as cf
 from datetime import date, datetime, timedelta
 from collections import defaultdict
 import streamlit as st
@@ -285,7 +286,7 @@ def sincronizar_com_api(contas):
         return contas, 0, str(e)
 
 def buscar_pagamentos_mcc(contas: list) -> dict:
-    """Retorna {acc_id: str} com tipo de pagamento para contas Aceitas."""
+    """Retorna {acc_id: str} com tipo de pagamento para contas Aceitas (paralelo)."""
     try:
         resp = requests.post("https://oauth2.googleapis.com/token", data={
             "grant_type":    "refresh_token",
@@ -312,9 +313,9 @@ def buscar_pagamentos_mcc(contas: list) -> dict:
         "MONTHLY_INVOICING":   "📄 Fatura",
     }
 
-    pagamentos = {}
     aceitas = [c for c in contas if c["status"] == "✅ Aceito"]
-    for c in aceitas:
+
+    def _fetch(c):
         acc_clean = c["id"].replace("-", "")
         try:
             r = requests.post(
@@ -330,16 +331,17 @@ def buscar_pagamentos_mcc(contas: list) -> dict:
             results = r.json().get("results", [])
             if results:
                 pmt = results[0].get("billingSetup", {}).get("paymentMethodType", "")
-                pagamentos[c["id"]] = TIPOS.get(pmt, pmt or "—")
-            elif r.status_code == 403:
-                pagamentos[c["id"]] = "🔒 Sem acesso"
-            else:
-                pagamentos[c["id"]] = "—"
+                return c["id"], TIPOS.get(pmt, pmt or "—")
+            if r.status_code == 403:
+                return c["id"], "🔒 Sem acesso"
+            return c["id"], "—"
         except Exception:
-            pagamentos[c["id"]] = "❌ Erro"
-        time.sleep(0.15)
+            return c["id"], "❌ Erro"
 
-    return pagamentos
+    with cf.ThreadPoolExecutor(max_workers=10) as pool:
+        resultados = pool.map(_fetch, aceitas)
+
+    return dict(resultados)
 
 
 def buscar_gastos_mcc(contas: list, date_from: str, date_to: str) -> dict:
