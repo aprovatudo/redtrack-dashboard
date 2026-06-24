@@ -285,57 +285,6 @@ def sincronizar_com_api(contas):
     except Exception as e:
         return contas, 0, str(e)
 
-def buscar_gastos_mcc(contas: list, date_from: str, date_to: str) -> dict:
-    """Retorna {acc_id: custo_usd} para contas Aceitas via Google Ads API."""
-    try:
-        resp = requests.post("https://oauth2.googleapis.com/token", data={
-            "grant_type":    "refresh_token",
-            "refresh_token": os.getenv("GOOGLE_ADS_REFRESH_TOKEN"),
-            "client_id":     os.getenv("GOOGLE_ADS_CLIENT_ID"),
-            "client_secret": os.getenv("GOOGLE_ADS_CLIENT_SECRET"),
-        }, timeout=15)
-        token  = resp.json()["access_token"]
-        MCC_ID = os.getenv("GOOGLE_ADS_MCC_ID", "").replace("-", "")
-        hdrs   = {
-            "Authorization":     f"Bearer {token}",
-            "developer-token":   os.getenv("GOOGLE_ADS_DEVELOPER_TOKEN"),
-            "login-customer-id": MCC_ID,
-            "Content-Type":      "application/json",
-        }
-    except Exception as e:
-        return {"_erro": str(e)}
-
-    gastos  = {}
-    aceitas = [c for c in contas if c["status"] == "✅ Aceito"]
-    for c in aceitas:
-        acc_clean = c["id"].replace("-", "")
-        try:
-            r = requests.post(
-                f"https://googleads.googleapis.com/v21/customers/{acc_clean}/googleAds:search",
-                headers=hdrs,
-                json={"query": f"""
-                    SELECT metrics.cost_micros
-                    FROM campaign
-                    WHERE segments.date BETWEEN '{date_from}' AND '{date_to}'
-                    AND campaign.status != 'REMOVED'
-                """},
-                timeout=10,
-            )
-            if r.status_code == 403:
-                erros    = r.json().get("error", {}).get("details", [{}])
-                auth_err = erros[0].get("errors", [{}])[0].get("errorCode", {}).get("authorizationError", "")
-                gastos[c["id"]] = "INATIVA" if auth_err == "CUSTOMER_NOT_ENABLED" else "ERRO"
-            else:
-                total_micros = sum(
-                    int(row.get("metrics", {}).get("costMicros", 0) or 0)
-                    for row in r.json().get("results", [])
-                )
-                gastos[c["id"]] = round(total_micros / 1_000_000, 2)
-        except Exception:
-            gastos[c["id"]] = "ERRO"
-        time.sleep(0.15)
-
-    return gastos
 
 
 # ── Título ───────────────────────────────────────────────
@@ -656,67 +605,6 @@ elif pagina == "🔗 Convites MCC":
                 st.success(f"{atualizados} conta(s) atualizada(s)!")
                 st.rerun()
 
-    # ── Seletor de período com presets ───────────────────
-    _h = date.today()
-    _seg = _h - timedelta(days=_h.weekday())
-    _seg_ant = _seg - timedelta(days=7)
-    _ini_mes_ant = (_h.replace(day=1) - timedelta(days=1)).replace(day=1)
-    _fim_mes_ant = _h.replace(day=1) - timedelta(days=1)
-
-    _presets = {
-        "Hoje":           (_h, _h),
-        "Ontem":          (_h - timedelta(1), _h - timedelta(1)),
-        "Esta semana":    (_seg, _h),
-        "Últ. 7 dias":    (_h - timedelta(7), _h),
-        "Sem. passada":   (_seg_ant, _seg_ant + timedelta(6)),
-        "Este mês":       (_h.replace(day=1), _h),
-        "Últ. 30 dias":   (_h - timedelta(30), _h),
-        "Mês passado":    (_ini_mes_ant, _fim_mes_ant),
-        "Personalizado":  None,
-    }
-
-    if "gastos_preset" not in st.session_state:
-        st.session_state["gastos_preset"] = "Este mês"
-
-    _pcols = st.columns(len(_presets))
-    for i, (lbl, _) in enumerate(_presets.items()):
-        with _pcols[i]:
-            _ativo = st.session_state["gastos_preset"] == lbl
-            if st.button(lbl, key=f"gp_{lbl}",
-                         type="primary" if _ativo else "secondary",
-                         use_container_width=True):
-                st.session_state["gastos_preset"] = lbl
-                st.rerun()
-
-    _sel = st.session_state["gastos_preset"]
-    if _sel == "Personalizado":
-        _range = st.date_input(
-            "Selecione o intervalo",
-            value=(_h.replace(day=1), _h),
-            key="gastos_range_custom",
-            label_visibility="collapsed",
-        )
-        gastos_de  = _range[0]
-        gastos_ate = _range[1] if len(_range) == 2 else _range[0]
-    else:
-        gastos_de, gastos_ate = _presets[_sel]
-        st.caption(f"📅 {gastos_de.strftime('%d/%m/%Y')} — {gastos_ate.strftime('%d/%m/%Y')}")
-
-    _de_str  = str(gastos_de)
-    _ate_str = str(gastos_ate)
-    if (_de_str != st.session_state.get("gastos_ultimo_de") or
-            _ate_str != st.session_state.get("gastos_ultimo_ate")):
-        with st.spinner("Carregando gastos..."):
-            _contas_tmp = carregar_contas()
-            gastos_result = buscar_gastos_mcc(_contas_tmp, _de_str, _ate_str)
-            st.session_state["gastos_contas"]    = gastos_result
-            st.session_state["gastos_periodo"]   = f"{gastos_de.strftime('%d/%m')} – {gastos_ate.strftime('%d/%m/%Y')}"
-            st.session_state["gastos_ultimo_de"]  = _de_str
-            st.session_state["gastos_ultimo_ate"] = _ate_str
-
-    gastos_map = st.session_state.get("gastos_contas", {})
-    gastos_periodo_label = st.session_state.get("gastos_periodo", "")
-
     total_c = len(contas)
     aceitos = sum(1 for c in contas if c["status"] == "✅ Aceito")
     pendentes_c = sum(1 for c in contas if c["status"] == "⏳ Pendente")
@@ -796,20 +684,9 @@ elif pagina == "🔗 Convites MCC":
 
     # ── Tabela com data_editor ────────────────────────────
     opcoes = ["✅ Aceito", "⏳ Pendente", "📤 Não enviado", "🚫 Suspensa"]
-    gastos_col = f"Gastos {'(' + gastos_periodo_label + ')' if gastos_periodo_label else ''}"
 
     rows = []
     for c in filtradas:
-        gasto_val = gastos_map.get(c["id"])
-        if gasto_val == "INATIVA":
-            g = "⚠️ Inativa"
-        elif gasto_val == "ERRO":
-            g = "❌ Erro"
-        elif isinstance(gasto_val, (int, float)):
-            g = f"${gasto_val:,.2f}"
-        else:
-            g = "—"
-
         sc = c.get("status_conta", "")
         moeda = c.get("moeda", "")
         if c["status"] == "🚫 Suspensa":
@@ -825,13 +702,12 @@ elif pagina == "🔗 Convites MCC":
             "Nome":         c["nome"],
             "Convite":      "— Nulo" if c["status"] == "🚫 Suspensa" else c["status"],
             "Data convite": c.get("data_convite") or "—",
-            gastos_col:     g,
             "Conta":        conta_str,
             "Status":       c["status"],
         })
 
     df_mcc = pd.DataFrame(rows) if rows else pd.DataFrame(
-        columns=["ID", "Nome", "Convite", "Data convite", gastos_col, "Conta", "Status"]
+        columns=["ID", "Nome", "Convite", "Data convite", "Conta", "Status"]
     )
 
     if "editor_v" not in st.session_state:
@@ -844,7 +720,6 @@ elif pagina == "🔗 Convites MCC":
             "Nome":        st.column_config.TextColumn("Nome",         disabled=True, width="large"),
             "Convite":     st.column_config.TextColumn("Convite",      disabled=True, width="medium"),
             "Data convite":st.column_config.TextColumn("Data convite", disabled=True, width="small"),
-            gastos_col:    st.column_config.TextColumn(gastos_col,     disabled=True, width="small"),
             "Conta":       st.column_config.TextColumn("Conta",        disabled=True, width="medium"),
             "Status":      st.column_config.SelectboxColumn(
                                "Alterar status", options=opcoes, width="medium"
@@ -854,10 +729,6 @@ elif pagina == "🔗 Convites MCC":
         use_container_width=True,
         key=f"editor_mcc_{st.session_state['editor_v']}",
     )
-
-    if gastos_map:
-        total_gastos = sum(v for c in filtradas if isinstance(v := gastos_map.get(c["id"], 0), (int, float)))
-        st.caption(f"Total gastos — **${total_gastos:,.2f}** ({len(filtradas)} contas)")
 
     st.divider()
     col_info, col_save_btn = st.columns([3, 1])
