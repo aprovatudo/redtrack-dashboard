@@ -34,6 +34,13 @@ SHEET_CONFIG = {
             "ML 2.2 PP 1.2-YT-CV": "ML 2.2 PP 1.2-YT-SD",
         },
     },
+    # Ambas as grafias apontam para a mesma config
+    "RockBoost": {
+        "campaign_pattern": ["ROCKBOOST", "ROCK BOOST"],
+    },
+    "Rock Boost": {
+        "campaign_pattern": ["ROCKBOOST", "ROCK BOOST"],
+    },
 }
 
 
@@ -85,7 +92,11 @@ def _fetch_week(date_from: str, date_to: str, campaign_pattern: str = None, netw
             items = data if isinstance(data, list) else data.get("items", [])
 
             if campaign_pattern:
-                items = [i for i in items if campaign_pattern.upper() in str(i.get("rt_campaign", "")).upper()]
+                patterns = list(campaign_pattern) if isinstance(campaign_pattern, (list, tuple)) else [campaign_pattern]
+                items = [
+                    i for i in items
+                    if any(p.upper() in str(i.get("rt_campaign", "")).upper() for p in patterns)
+                ]
 
             return items
         except requests.exceptions.Timeout:
@@ -297,7 +308,8 @@ def run(date_from: str = "2026-01-01", date_to: str = None, sheet_filter: str = 
     config_groups = defaultdict(list)
     for sheet_name in sheets_to_update:
         cfg = SHEET_CONFIG.get(sheet_name, {})
-        key = (cfg.get("campaign_pattern"), cfg.get("network_id"))
+        pat = cfg.get("campaign_pattern")
+        key = (tuple(pat) if isinstance(pat, list) else pat, cfg.get("network_id"))
         config_groups[key].append(sheet_name)
 
     for (campaign_pattern, network_id), sheet_names in config_groups.items():
