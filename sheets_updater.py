@@ -37,9 +37,11 @@ SHEET_CONFIG = {
     # Ambas as grafias apontam para a mesma config
     "RockBoost": {
         "campaign_pattern": ["ROCKBOOST", "ROCK BOOST"],
+        "currency_format": "$#,##0.00",
     },
     "Rock Boost": {
         "campaign_pattern": ["ROCKBOOST", "ROCK BOOST"],
+        "currency_format": "$#,##0.00",
     },
 }
 
@@ -161,7 +163,7 @@ def idx_to_col(idx: int) -> str:
     return result
 
 
-def update_product_sheet(sheets, sheet_name: str, redtrack_data: dict, name_col: str = None, name_mapping: dict = None):
+def update_product_sheet(sheets, sheet_name: str, redtrack_data: dict, name_col: str = None, name_mapping: dict = None, sheet_id: int = None, currency_format: str = None):
     print(f"\n  → Atualizando aba '{sheet_name}'...")
 
     result = sheets.values().get(
@@ -280,6 +282,36 @@ def update_product_sheet(sheets, sheet_name: str, redtrack_data: dict, name_col:
 
     print(f"    {len(updates)} células escritas")
 
+    # Aplica formato de moeda nas colunas monetárias, se configurado
+    if currency_format and sheet_id is not None and metric_cols:
+        monetary = [metric_cols[c] for c in ["CPC", "GASTOS", "FATURAMENTO", "CPA", "CP/IC"] if c in metric_cols]
+        fmt_requests = [
+            {
+                "repeatCell": {
+                    "range": {
+                        "sheetId": sheet_id,
+                        "startRowIndex": header_row_idx + 1,
+                        "endRowIndex": len(values),
+                        "startColumnIndex": col_idx,
+                        "endColumnIndex": col_idx + 1,
+                    },
+                    "cell": {
+                        "userEnteredFormat": {
+                            "numberFormat": {"type": "CURRENCY", "pattern": currency_format}
+                        }
+                    },
+                    "fields": "userEnteredFormat.numberFormat",
+                }
+            }
+            for col_idx in monetary
+        ]
+        if fmt_requests:
+            sheets.batchUpdate(
+                spreadsheetId=SPREADSHEET_ID,
+                body={"requests": fmt_requests},
+            ).execute()
+            print(f"    Formato {currency_format} aplicado em {len(monetary)} colunas monetárias")
+
 
 def run(date_from: str = "2026-01-01", date_to: str = None, sheet_filter: str = None):
     if date_to is None:
@@ -290,6 +322,7 @@ def run(date_from: str = "2026-01-01", date_to: str = None, sheet_filter: str = 
     sheets = service.spreadsheets()
 
     meta = service.spreadsheets().get(spreadsheetId=SPREADSHEET_ID).execute()
+    sheet_id_map = {s["properties"]["title"]: s["properties"]["sheetId"] for s in meta["sheets"]}
     sheets_to_update = [
         s["properties"]["title"]
         for s in meta["sheets"]
@@ -332,7 +365,9 @@ def run(date_from: str = "2026-01-01", date_to: str = None, sheet_filter: str = 
                 cfg = SHEET_CONFIG.get(sheet_name, {})
                 update_product_sheet(sheets, sheet_name, redtrack_data,
                                      name_col=cfg.get("name_col"),
-                                     name_mapping=cfg.get("name_mapping"))
+                                     name_mapping=cfg.get("name_mapping"),
+                                     sheet_id=sheet_id_map.get(sheet_name),
+                                     currency_format=cfg.get("currency_format"))
             except Exception as e:
                 print(f"    Erro na aba '{sheet_name}': {e}")
 
