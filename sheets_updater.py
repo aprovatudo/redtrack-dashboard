@@ -34,6 +34,10 @@ SHEET_CONFIG = {
             "ML 2.2 PP 1.2-YT-CV": "ML 2.2 PP 1.2-YT-SD",
         },
     },
+    "AlkaLean": {
+        "campaign_pattern": "ALKALEAN",
+        "currency_format": "$#,##0.00",
+    },
     # Ambas as grafias apontam para a mesma config
     "RockBoost": {
         "campaign_pattern": ["ROCKBOOST", "ROCK BOOST"],

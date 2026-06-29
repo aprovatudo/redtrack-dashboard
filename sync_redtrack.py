@@ -1,6 +1,9 @@
 """
 Script de sincronização automática — roda via GitHub Actions.
 Verifica novos Traffic Channels no Redtrack e adiciona ao accounts_to_invite.txt.
+
+Varre TODAS as fontes a cada execução (não usa serial como cursor) para não
+perder entradas criadas com serial menor que o último processado.
 """
 import os
 import re
@@ -11,13 +14,6 @@ ARQUIVO_CONTAS  = os.path.join(os.path.dirname(__file__), "accounts_to_invite.tx
 ARQUIVO_SERIAL  = os.path.join(os.path.dirname(__file__), "last_serial.json")
 REDTRACK_BASE   = "https://api.redtrack.io"
 REDTRACK_KEY    = os.environ.get("REDTRACK_API_KEY", "")
-
-
-def ler_ultimo_serial() -> int:
-    if os.path.exists(ARQUIVO_SERIAL):
-        with open(ARQUIVO_SERIAL, encoding="utf-8") as f:
-            return json.load(f).get("last_serial", 0)
-    return 0
 
 
 def salvar_ultimo_serial(serial: int):
@@ -48,12 +44,11 @@ def main():
         print("REDTRACK_API_KEY não configurada.")
         return
 
-    ultimo = ler_ultimo_serial()
     existentes = carregar_existentes()
-    print(f"Último serial: #{ultimo} | Contas na lista: {len(existentes)}")
+    print(f"Contas na lista: {len(existentes)}")
 
     novos = []
-    maior_serial = ultimo
+    maior_serial = 0
     page = 1
 
     while True:
@@ -70,8 +65,6 @@ def main():
             serial = s.get("serial_number", 0)
             if serial > maior_serial:
                 maior_serial = serial
-            if serial <= ultimo:
-                continue
 
             name = s.get("title", "")
             network_id = s.get("network_id", "")
@@ -100,9 +93,9 @@ def main():
     else:
         print("Nenhuma conta nova encontrada.")
 
-    if maior_serial > ultimo:
+    if maior_serial > 0:
         salvar_ultimo_serial(maior_serial)
-        print(f"Último serial atualizado para #{maior_serial}")
+        print(f"Maior serial visto: #{maior_serial}")
 
 
 if __name__ == "__main__":
