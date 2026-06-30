@@ -1,6 +1,9 @@
 # Secrets — nunca subir para o GitHub
 .env
 credentials.json
+account_tokens.json
+token_dg.json
+ads_data.json
 
 # Python
 venv/
