@@ -9,6 +9,12 @@ import requests
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from dotenv import load_dotenv
+try:
+    from google.cloud import bigquery
+    from google.oauth2 import service_account
+    _BQ_AVAILABLE = True
+except ImportError:
+    _BQ_AVAILABLE = False
 
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
 
@@ -17,12 +23,43 @@ ARQUIVO_CONTAS   = os.path.join(os.path.dirname(__file__), "accounts_to_invite.t
 ARQUIVO_DETALHES = os.path.join(os.path.dirname(__file__), "account_details.json")
 ARQUIVO_SERIAL      = os.path.join(os.path.dirname(__file__), "last_serial.json")
 ARQUIVO_TIMESTAMPS  = os.path.join(os.path.dirname(__file__), "invite_timestamps.json")
+ARQUIVO_FEGSYS_DONE  = os.path.join(os.path.dirname(__file__), "fegsys_done.json")
+ARQUIVO_CREDENTIALS  = os.path.join(os.path.dirname(__file__), "credentials.json")
 
 def carregar_timestamps() -> dict:
     if not os.path.exists(ARQUIVO_TIMESTAMPS):
         return {}
     with open(ARQUIVO_TIMESTAMPS, encoding="utf-8") as f:
         return json.load(f)
+
+@st.cache_data(ttl=60)
+def carregar_fegsys_done() -> set:
+    """Consulta BigQuery para obter contas com token FEG ativo. Fallback para JSON local."""
+    if _BQ_AVAILABLE and os.path.exists(ARQUIVO_CREDENTIALS):
+        try:
+            creds = service_account.Credentials.from_service_account_file(
+                ARQUIVO_CREDENTIALS,
+                scopes=["https://www.googleapis.com/auth/cloud-platform"],
+            )
+            client = bigquery.Client(credentials=creds, project="grupofeg-lakehouse")
+            rows = client.query("""
+                SELECT customer_id
+                FROM gold_feg.gads_tokens
+                WHERE active = TRUE AND customer_id IS NOT NULL
+            """).result()
+            ids = set()
+            for r in rows:
+                cid = str(r["customer_id"])
+                if len(cid) == 10:
+                    ids.add(f"{cid[:3]}-{cid[3:6]}-{cid[6:]}")
+            return ids
+        except Exception:
+            pass
+    # fallback para arquivo local
+    if not os.path.exists(ARQUIVO_FEGSYS_DONE):
+        return set()
+    with open(ARQUIVO_FEGSYS_DONE, encoding="utf-8") as f:
+        return set(json.load(f))
 
 def _ler_ultimo_serial() -> int:
     if os.path.exists(ARQUIVO_SERIAL):
@@ -436,7 +473,7 @@ with st.sidebar:
     st.divider()
     pagina = st.radio(
         "nav",
-        ["📋 Contestações", "🔗 Convites MCC", "📈 Click Time"],
+        ["📋 Contestações", "🔗 Convites MCC", "📈 Click Time", "🔑 FEG Tracker"],
         label_visibility="collapsed",
     )
 
@@ -1034,3 +1071,89 @@ elif pagina == "📈 Click Time":
             )
             st.plotly_chart(fig, use_container_width=True)
 
+
+# ════════════════════════════════════════════════════════
+# PÁGINA 4 — FEG TRACKER
+# ════════════════════════════════════════════════════════
+elif pagina == "🔑 FEG Tracker":
+    col_titulo_feg, col_btn_feg = st.columns([4, 1])
+    with col_titulo_feg:
+        st.subheader("Contas com Token FEG Conectado")
+        st.caption("Contas que concluíram a autorização OAuth no tracker.fegsys.com")
+    with col_btn_feg:
+        st.write("")
+        st.write("")
+        if st.button("🔄 Atualizar", use_container_width=True):
+            carregar_fegsys_done.clear()
+            st.rerun()
+
+    fegsys_ids = carregar_fegsys_done()
+    contas_todas = carregar_contas()
+
+    # Total de contas elegíveis (não suspensas) para calcular progresso
+    total_elegivel = sum(1 for c in contas_todas if c.get("status_conta") == "ENABLED")
+    total_conectadas = sum(1 for acc_id in fegsys_ids
+                          if any(c["id"] == acc_id and c.get("status_conta") == "ENABLED"
+                                 for c in contas_todas))
+    progresso_feg = round(total_conectadas / total_elegivel * 100) if total_elegivel > 0 else 0
+
+    # Mapa id → nome
+    id_para_nome = {c["id"]: c["nome"] for c in contas_todas}
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("🔑 Com token conectado", total_conectadas)
+    col2.metric("🟢 Contas ativas", total_elegivel)
+    col3.metric("📊 Progresso", f"{progresso_feg}%")
+
+    st.progress(progresso_feg / 100)
+    st.divider()
+
+    # Filtro de busca
+    busca_feg = st.text_input("Buscar por ID ou nome", key="busca_feg")
+
+    # Monta tabela
+    rows_feg = []
+    for acc_id in sorted(fegsys_ids):
+        nome = id_para_nome.get(acc_id, "—")
+        if busca_feg and busca_feg.lower() not in acc_id.lower() and busca_feg.lower() not in nome.lower():
+            continue
+        rows_feg.append({"ID": acc_id, "Nome": nome})
+
+    st.markdown(f"**{len(rows_feg)} conta(s) encontrada(s)**")
+    st.divider()
+
+    if rows_feg:
+        df_feg = pd.DataFrame(rows_feg)
+        st.dataframe(
+            df_feg,
+            column_config={
+                "ID":   st.column_config.TextColumn("ID",   width="medium"),
+                "Nome": st.column_config.TextColumn("Nome", width="large"),
+            },
+            hide_index=True,
+            use_container_width=True,
+        )
+    else:
+        st.info("Nenhuma conta encontrada com o filtro atual." if busca_feg else "Nenhuma conta com token FEG conectado ainda.")
+
+    # Contas elegíveis SEM token (apenas ENABLED)
+    sem_token = [
+        c for c in contas_todas
+        if c.get("status_conta") == "ENABLED"
+        and c["id"] not in fegsys_ids
+    ]
+    with st.expander(f"⏳ Contas ainda sem token ({len(sem_token)})"):
+        if sem_token:
+            df_sem = pd.DataFrame([{"ID": c["id"], "Nome": c["nome"], "Convite": c["status"]} for c in sem_token])
+            st.dataframe(
+                df_sem,
+                column_config={
+                    "ID":      st.column_config.TextColumn("ID",      width="medium"),
+                    "Nome":    st.column_config.TextColumn("Nome",    width="large"),
+                    "Convite": st.column_config.TextColumn("Convite", width="medium"),
+                },
+                hide_index=True,
+                use_container_width=True,
+            )
+        else:
+            st.success("Todas as contas elegíveis já têm token conectado!")

@@ -3,7 +3,33 @@
 credentials.json
 account_tokens.json
 token_dg.json
+token.json
 ads_data.json
+totp_secrets.json
+totp_debug.json
+fegsys_done.json
+fegsys_debug*.html
+account_statuses.json
+
+# Dados de runtime
+google_ads_accounts.csv
+google_ads_ids_only.txt
+accounts_failed.txt
+redtrack_api_map.json
+
+# Logs
+*.log
+
+# Scripts de fix pontual (não versionados)
+brl_to_usd*.py
+fix_*.py
+debug_*.py
+inspect_*.py
+convert_creatives_values.py
+audit_creatives.py
+audit_values.py
+test_campaign.py
+test_fegsys.py
 
 # Python
 venv/

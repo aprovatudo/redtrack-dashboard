@@ -35,7 +35,8 @@ QUERY = """
       metrics.conversions_value,
       metrics.impressions,
       metrics.clicks,
-      segments.date
+      segments.date,
+      customer.currency_code
     FROM campaign
     WHERE segments.date BETWEEN '{date_from}' AND '{date_to}'
       AND campaign.status != 'REMOVED'
@@ -95,18 +96,20 @@ def pull_account(account_id: str, token_data: dict, date_from: str, date_to: str
             campaign  = result.get("campaign", {})
             metrics   = result.get("metrics", {})
             segments  = result.get("segments", {})
+            customer  = result.get("customer", {})
             cost      = int(metrics.get("costMicros", 0)) / 1_000_000
             rows.append({
-                "account_id":   account_id,
-                "date":         segments.get("date"),
-                "campaign_id":  campaign.get("id"),
-                "campaign":     campaign.get("name"),
-                "status":       campaign.get("status"),
-                "cost":         round(cost, 2),
-                "impressions":  int(metrics.get("impressions", 0)),
-                "clicks":       int(metrics.get("clicks", 0)),
-                "conversions":  float(metrics.get("conversions", 0)),
-                "revenue":      float(metrics.get("conversionsValue", 0)),
+                "account_id":    account_id,
+                "currency":      customer.get("currencyCode", "???"),
+                "date":          segments.get("date"),
+                "campaign_id":   campaign.get("id"),
+                "campaign":      campaign.get("name"),
+                "status":        campaign.get("status"),
+                "cost":          round(cost, 2),
+                "impressions":   int(metrics.get("impressions", 0)),
+                "clicks":        int(metrics.get("clicks", 0)),
+                "conversions":   float(metrics.get("conversions", 0)),
+                "revenue":       float(metrics.get("conversionsValue", 0)),
             })
     return rows
 
@@ -134,7 +137,7 @@ def main():
     else:
         accounts = all_tokens
 
-    date_to   = date.today().isoformat()
+    date_to   = (date.today() - timedelta(days=1)).isoformat()
     date_from = (date.today() - timedelta(days=args.days)).isoformat()
     print(f"Período: {date_from} → {date_to} | Contas: {len(accounts)}\n")
 
@@ -145,7 +148,8 @@ def main():
         all_rows.extend(rows)
         if rows:
             total_cost = sum(r["cost"] for r in rows)
-            print(f"    ✅ {len(rows)} linhas | gasto total: ${total_cost:.2f}")
+            currency   = rows[0].get("currency", "???")
+            print(f"    ✅ {len(rows)} linhas | gasto total: {currency} {total_cost:,.2f}")
 
     print(f"\nTotal: {len(all_rows)} linhas de {len(accounts)} conta(s).")
 
