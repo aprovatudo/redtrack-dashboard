@@ -2,14 +2,12 @@ name: Sync Redtrack Channels
 
 on:
   schedule:
-    - cron: '0 * * * *'   # todo hora — detecta novas contas do Redtrack
-  workflow_dispatch:        # permite rodar manualmente
+    - cron: '0 * * * *'
+  workflow_dispatch:
 
 jobs:
   sync:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
       - uses: actions/checkout@v4
@@ -24,20 +22,3 @@ jobs:
         env:
           REDTRACK_API_KEY: ${{ secrets.REDTRACK_API_KEY }}
         run: python sync_redtrack.py
-
-      - name: Auto convites MCC
-        env:
-          GOOGLE_ADS_MCC_ID:           ${{ secrets.GOOGLE_ADS_MCC_ID }}
-          GOOGLE_ADS_DEVELOPER_TOKEN:  ${{ secrets.GOOGLE_ADS_DEVELOPER_TOKEN }}
-          GOOGLE_ADS_CLIENT_ID:        ${{ secrets.GOOGLE_ADS_CLIENT_ID }}
-          GOOGLE_ADS_CLIENT_SECRET:    ${{ secrets.GOOGLE_ADS_CLIENT_SECRET }}
-          GOOGLE_ADS_REFRESH_TOKEN:    ${{ secrets.GOOGLE_ADS_REFRESH_TOKEN }}
-        run: python auto_invite.py
-
-      - name: Commit alterações
-        run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add accounts_to_invite.txt last_serial.json invite_timestamps.json
-          git diff --cached --quiet || git commit -m "auto: sync Redtrack + convites MCC"
-          git push
