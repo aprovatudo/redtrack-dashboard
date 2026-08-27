@@ -121,7 +121,15 @@ def main():
     parser.add_argument("--github-pages",  action="store_true", help="Usar GitHub Pages em vez de FTP")
     parser.add_argument("--campaign-id",   default=None)
     parser.add_argument("--gestor",        default=None, help="Gestor da conta (ex: GH ou AN)")
+    parser.add_argument("--webhook-url",   default=None, help="URL do webhook Vturb local")
+    parser.add_argument("--webhook-token", default=None, help="Token do webhook Vturb")
     args, remaining = parser.parse_known_args()
+
+    # Garante que os env vars do webhook estejam disponíveis para run_setup_lc
+    if args.webhook_url:
+        os.environ["VTURB_WEBHOOK_URL"]   = args.webhook_url
+    if args.webhook_token:
+        os.environ["VTURB_WEBHOOK_TOKEN"] = args.webhook_token
 
     # Parsear --player-{slug}=<id> dinamicamente
     player_ids = {}
