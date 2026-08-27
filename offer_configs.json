@@ -1,0 +1,492 @@
+{
+  "BrainMary": {
+    "template_domain": "fg.startyournaturalhealthjourneytoday.lat",
+    "template_campaign": "6a58d5aad7e4930f2c77c19a",
+    "template_vsl01_player": "6a5668c5338c0cc1d6686480",
+    "template_micro01_player": "6a5993630a82ee5734f49056",
+    "vturb_folder_id": "6a5623251f96d9ac63023b21",
+    "vturb_templates": {
+      "vsl01": "6a58fe935cf81877fd18cfcc",
+      "micro01": "6a5963a9c02fb54b9a39b1fd"
+    },
+    "vturb_video_names": {
+      "vsl01": "BRAINMARY VSL 01 - LEAD 2 - V1 - C47 - EV 15 - PITCH 50-47_1.mp4 - {lc}",
+      "micro01": "LEAD 2.1 (RC) - V1 - C47 BRAINMARY.mov - {lc}"
+    },
+    "pages": {
+      "premary": [
+        "domain",
+        "campaign"
+      ],
+      "vsl01": [
+        "domain",
+        "campaign",
+        "vsl01"
+      ],
+      "micro01": [
+        "domain",
+        "campaign",
+        "micro01"
+      ]
+    },
+    "redtrack": {
+      "aff_id": "1262",
+      "lander_title": "{lc} | Lander | Youtube | BuyGoods | BrainMary | YT | BH | {label} | {domain}",
+      "prelander_title": "{lc} | Pre-Lander | Youtube | BuyGoods | BrainMary | YT | {label} | {domain}",
+      "stream_title": "{lc} | Youtube | BuyGoods | BrainMary | PRE -> VSL -> DTC | {domain}",
+      "campaign_title": "{lc} | {gestor} | Youtube - {conta} | BuyGoods | BrainMary | YT | ALECRIM | {domain}",
+      "offer_ids": [
+        "6a58ce2089dde44f15696e3f",
+        "6a58ce21191445b4218a00d4",
+        "6a58ce21a56c101dd98ec737"
+      ],
+      "pages": [
+        {
+          "slug": "premary",
+          "type": "p",
+          "label": "VSL",
+          "role": "prelander"
+        },
+        {
+          "slug": "vsl01",
+          "type": "l",
+          "label": "VSL BH ORIGINAL",
+          "role": "lander"
+        },
+        {
+          "slug": "micro01",
+          "type": "l",
+          "label": "VSL BH MICRO 2.1 (RC)",
+          "role": "lander"
+        }
+      ]
+    }
+  },
+  "MaxForce": {
+    "template_domain": "fg.activateyournaturalhealingpower.lat",
+    "template_campaign": "6a60e621ba010d03e4feb519",
+    "template_vsl01_player": "6a60c5786a092f68e0be3b2c",
+    "template_vsl02_player": "6a60cd1952a4a61227374390",
+    "template_vsl03_player": "6a60ceb8d7a2a666a914ac28",
+    "vturb_folder_id": "6a60c40caa8d5ee83ce53286",
+    "vturb_templates": {
+      "vsl01": "6a60c5786a092f68e0be3b2c",
+      "vsl02": "6a60cd1952a4a61227374390",
+      "vsl03": "6a60ceb8d7a2a666a914ac28"
+    },
+    "vturb_video_names": {
+      "vsl01": "VSL1- MAXFORCE  - MHR - ML01 - L1 (PITCH 41_30).mp4 - {lc}",
+      "vsl02": "Microlead 1.1 (NM) - Blackline.mp4 - {lc}",
+      "vsl03": "MICROLEAD1.2 (PB) MAXFORCE [Blackline].mov - {lc}"
+    },
+    "pages": {
+      "premax": [
+        "domain",
+        "campaign"
+      ],
+      "maxforce": [
+        "domain",
+        "campaign",
+        "vsl01"
+      ],
+      "micro-nm": [
+        "domain",
+        "campaign",
+        "vsl02"
+      ],
+      "micro-pb": [
+        "domain",
+        "campaign",
+        "vsl03"
+      ]
+    },
+    "redtrack": {
+      "lander_title": "{lc} | Lander | YouTube | PAGAMERICAN | MAX FORCE | ED | BLACKLINE | {label} | {domain}",
+      "prelander_title": "{lc} | Pre Lander | Youtube | PagAmerican | MaxForce | YT | {label} | {domain}",
+      "stream_title": "{lc} | Youtube | PagAmerican | MaxForce | PRE -> VSL -> DTC | {domain}",
+      "campaign_title": "{lc} | {gestor} | Youtube - {conta} | PagAmerican | MaxForce | YT | Truque Militar | {domain}",
+      "offer_ids": [
+        "6a60d0856b32b23cbdb2aa85",
+        "6a60d0856b32b23cbdb2aa88",
+        "6a60d08951293e90a2138595"
+      ],
+      "pages": [
+        {
+          "slug": "premax",
+          "type": "p",
+          "label": "PRESELL",
+          "role": "prelander"
+        },
+        {
+          "slug": "maxforce",
+          "type": "l",
+          "label": "VSL CONTROLE PRODUTOR",
+          "role": "lander"
+        },
+        {
+          "slug": "micro-nm",
+          "type": "l",
+          "label": "VSL MICRO 1.1 (NM)",
+          "role": "lander"
+        },
+        {
+          "slug": "micro-pb",
+          "type": "l",
+          "label": "VSL MICRO 1.2 (PB)",
+          "role": "lander"
+        }
+      ]
+    }
+  },
+  "HorseWood": {
+    "template_domain": "fg.growyourwellnesshabitstoday.lat",
+    "template_campaign": "6a5f9be0f6f2a91afa2e3ca7",
+    "template_vsl01_player": "6a5fe544784316625b771708",
+    "template_micro01_player": "6a5fded9f29b75c7181b8792",
+    "vturb_folder_id": "6a5fa28a3d322f293844a304",
+    "vturb_templates": {
+      "vsl01": "6a6369c43059c2c13bc46aea",
+      "micro01": "6a636a33d042f5c6e0fb2100"
+    },
+    "vturb_video_names": {
+      "vsl01": "VNHG-L3.mp4 - {lc}",
+      "micro01": "MICROLEAD 1.1 (NM) Horsewood [Fênix.mov - {lc}"
+    },
+    "pages": {
+      "prehorse": [
+        "domain",
+        "campaign"
+      ],
+      "horsewood": [
+        "domain",
+        "campaign",
+        "vsl01"
+      ],
+      "microwood": [
+        "domain",
+        "campaign",
+        "micro01"
+      ]
+    },
+    "redtrack": {
+      "aff_id": "1262",
+      "lander_title": "{lc} | Lander | Youtube | Buy Goods | HorseWood | HORSE GELATIN | FÊNIX | YT | {label} | {domain}",
+      "prelander_title": "{lc} | Pre-Lander | Youtube | Buy Goods | HorseWood | HORSE GELATIN | FÊNIX | YT | VSL | {domain}",
+      "stream_title": "{lc} | Youtube | Buy Goods | HorseWood - JellyFill | PRE -> VSL -> DTC | {domain}",
+      "campaign_title": "{lc} | {gestor} | Youtube - {conta} | Buy Goods - PagAmerican | HorseWood - JellyFill | YT | VSL | {domain}",
+      "offer_ids": [
+        "6a5f9452a93ac67cf53d2e3a",
+        "6a5f94aba93ac67cf53d6700",
+        "6a5f94d1fa34342fa3cbc22a"
+      ],
+      "pages": [
+        {
+          "slug": "prehorse",
+          "type": "p",
+          "label": "VSL",
+          "role": "prelander"
+        },
+        {
+          "slug": "horsewood",
+          "type": "l",
+          "label": "VSL LEAD L3",
+          "role": "lander"
+        },
+        {
+          "slug": "microwood",
+          "type": "l",
+          "label": "MICRO 1.1 (NM)",
+          "role": "lander"
+        }
+      ]
+    }
+  },
+  "SLIMTIDE": {
+    "template_domain": "fg.vitalessencehealth.lat",
+    "template_campaign": "6a7b33da365f5fce7a92e8b1",
+    "template_vslpeto_player": "6a7f0f8813b3b054342c75dc",
+    "template_micropetotw_player": "6a7e8ffdb8294d780d830303",
+    "template_vslburn_player": "6a87c189ac4946fa9aac323e",
+    "vturb_folder_id": "6a7a389a038aa468306a580d",
+    "vturb_folder_overrides": {
+      "vslburn": "6a870e8c308b4e11117bbc26"
+    },
+    "vturb_templates": {
+      "vslpeto": "6a7f0f8813b3b054342c75dc",
+      "micropetotw": "6a7e8ffdb8294d780d830303",
+      "vslburn": "6a87c189ac4946fa9aac323e"
+    },
+    "vturb_video_names": {
+      "vslpeto": "vsl pareto lead 01 sodatide 07_08.mp4 - {lc}",
+      "micropetotw": "VSL Pareto  lead 1.1 TW  (Slimtide) - BAKING SODA 2.0 - Versão 2.mp4 - {lc}",
+      "vslburn": "PAGE 2 - MicroLead 3 - Fenix - BAKING SODA 3.0 - Burntide - PITCH 37_48_00.mp4 - {lc}"
+    },
+    "pages": {
+      "preslim": [
+        "domain",
+        "campaign"
+      ],
+      "vslpeto": [
+        "domain",
+        "campaign",
+        "vslpeto"
+      ],
+      "micropetotw": [
+        "domain",
+        "campaign",
+        "micropetotw"
+      ],
+      "presoda": [
+        "domain",
+        "campaign"
+      ],
+      "vslburn": [
+        "domain",
+        "campaign",
+        "vslburn"
+      ]
+    },
+    "redtrack": {
+      "aff_id": "307218",
+      "lander_title": "{lc} | {label} | Lander | YouTube | SLIMTIDE | BuyGoods | WL | GEX | {domain}",
+      "prelander_title": "{lc} | Pre-Lander | Youtube | BuyGoods | SLIMTIDE | YT | PRESELL | {domain}",
+      "stream_title": "{lc} | Youtube | BuyGoods | SLIMTIDE | PRE -> VSL -> DTC | {domain}",
+      "campaign_title": "{lc} | {gestor} | Youtube - {conta} | BuyGoods | SLIMTIDE | YT | VSL | {domain}",
+      "offer_ids": [
+        "6a7b252a365f5fce7a893fa5",
+        "6a7b25faea2b20dec8e800ca",
+        "6a7b25fa4990c67370342a73"
+      ],
+      "burntide_offer_ids": [
+        "6a870efa4a523042fc08ae98",
+        "6a870efb4a523042fc08ae9b",
+        "6a870efb896d18f97d194a17"
+      ],
+      "vsl_script": "<script>var mysrc = \"https://tracking.buygoods.com/track/?a=12501&firstcookie=0\"+\"&tracking_redirect=&referrer=\"+encodeURIComponent(document.referrer)+\"&sessid2=\"+ReadCookie('sessid2')+\"&product=PP_SLT2UNITS_AFF,PP_SLT3UNITS_AFF,PP_SLT6UNITS_AFF&vid1=&vid2=&vid3=&caller_url=\"+encodeURIComponent(window.location.href); if(typeof add_to_cart !== 'undefined') { mysrc = mysrc+'&add_to_cart='+add_to_cart; } var newScript = document.createElement('script'); newScript.type = 'text/javascript'; newScript.defer = true; newScript.src = mysrc; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(newScript, s); function ReadCookie(name){name += '='; var parts = document.cookie.split(/;\\s*/);for (var i = 0; i < parts.length; i++) {var part = parts[i]; if (part.indexOf(name) == 0) return part.substring(name.length)} return '';}</script>\n<script type=\"text/javascript\">setTimeout(function () {var i = document.createElement(\"iframe\"),oid = new URLSearchParams(window.location.search);i.async = true;i.style=\"display:none\";i.setAttribute(\"src\", \"https://buygoods.com/affiliates/go/conversion/iframe/bg?a=12501&t=b41f2d52b731d284c53197aada03e0ad&s=\"+ReadCookie('sessid2'));document.body.appendChild(i);}, 1000);}</script>",
+      "pages": [
+        {
+          "slug": "preslim",
+          "type": "p",
+          "label": "PRESELL",
+          "role": "prelander"
+        },
+        {
+          "slug": "vslpeto",
+          "type": "l",
+          "label": "Baking Soda 2.0 | Vsl Pareto Lead 01",
+          "role": "lander"
+        },
+        {
+          "slug": "micropetotw",
+          "type": "l",
+          "label": "Baking Soda 2.0 | Micro Pareto TW",
+          "role": "lander"
+        },
+        {
+          "slug": "vslburn",
+          "type": "l",
+          "label": "Baking Soda 3.0 | Burntide | MicroLead 3 Fenix",
+          "role": "lander",
+          "title_override": "{lc} | Baking Soda 3.0 | Microlead 3 Fenix | Lander | YouTube | BurnTide | Buygoods | Weight Loss | Fenix | {domain}"
+        }
+      ]
+    }
+  },
+  "GUMITIDE": {
+    "template_domain": "fg.betterbloomhealth.online",
+    "template_campaign": "6a7dcab50f72cab2d38d118b",
+    "template_vslgumi_player": "6a7dd018a9eec739e11d1ee9",
+    "template_micropb_player": "6a7dd01b37edf7d8d58125f7",
+    "template_microaf_player": "6a7dd01e7b8f069f5e7ac5ff",
+    "vturb_folder_id": "6a7a390de299e68fc2aa0e26",
+    "vturb_templates": {
+      "vslgumi": "6a7dd018a9eec739e11d1ee9",
+      "micropb": "6a7dd01b37edf7d8d58125f7",
+      "microaf": "6a7dd01e7b8f069f5e7ac5ff"
+    },
+    "vturb_video_names": {
+      "vslgumi": "vsl pareto lead 01 - gummitide 07_08.mp4 - {lc}",
+      "micropb": "vsl pareto LEAD 1.1 (PB) - Gummitide.mp4 - {lc}",
+      "microaf": "VSL pareto LEAD 1.2 (AF) - Gummitide.mp4 - {lc}"
+    },
+    "pages": {
+      "pregumi": [
+        "domain",
+        "campaign"
+      ],
+      "vslgumi": [
+        "domain",
+        "campaign",
+        "vslgumi"
+      ],
+      "micropb": [
+        "domain",
+        "campaign",
+        "micropb"
+      ],
+      "microaf": [
+        "domain",
+        "campaign",
+        "microaf"
+      ]
+    },
+    "redtrack": {
+      "aff_id": "262762",
+      "lander_title": "{lc} | {label} | Lander | YouTube | GUMITIDE | BuyGoods | WL | GEX | {domain}",
+      "prelander_title": "{lc} | Pre-Lander | Youtube | BuyGoods | GUMITIDE | YT | PRESELL | {domain}",
+      "stream_title": "{lc} | Youtube | BuyGoods | GUMITIDE | PRE -> VSL -> DTC | {domain}",
+      "campaign_title": "{lc} | {gestor} | Youtube - {conta} | BuyGoods | GUMITIDE | YT | VSL | {domain}",
+      "offer_ids": [
+        "6a7b26bf73020ee4199cbc69",
+        "6a7b26c0b9351cae1a90e45a",
+        "6a7b26c0b9351cae1a90e4a1"
+      ],
+      "vsl_script": "<script>var mysrc = \"https://tracking.buygoods.com/track/?a=12512&firstcookie=0\"+\"&tracking_redirect=&referrer=\"+encodeURIComponent(document.referrer)+\"&sessid2=\"+ReadCookie('sessid2')+\"&product=PP_GMT2UNITS_AFF,PP_GMT3UNITS_AFF,PP_GMT6UNITS_AFF&vid1=&vid2=&vid3=&caller_url=\"+encodeURIComponent(window.location.href); if(typeof add_to_cart !== 'undefined') { mysrc = mysrc+'&add_to_cart='+add_to_cart; } var newScript = document.createElement('script'); newScript.type = 'text/javascript'; newScript.defer = true; newScript.src = mysrc; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(newScript, s); function ReadCookie(name){name += '='; var parts = document.cookie.split(/;\\s*/);for (var i = 0; i < parts.length; i++) {var part = parts[i]; if (part.indexOf(name) == 0) return part.substring(name.length)} return '';}</script>\n<script type=\"text/javascript\">setTimeout(function () {var i = document.createElement(\"iframe\"),oid = new URLSearchParams(window.location.search);i.async = true;i.style=\"display:none\";i.setAttribute(\"src\", \"https://buygoods.com/affiliates/go/conversion/iframe/bg?a=12512&t=3f21a068506f8f5ad9453e583e3b64e2&s=\"+ReadCookie('sessid2'));document.body.appendChild(i);}, 1000);}</script>",
+      "pages": [
+        {
+          "slug": "pregumi",
+          "type": "p",
+          "label": "PRESELL",
+          "role": "prelander"
+        },
+        {
+          "slug": "vslgumi",
+          "type": "l",
+          "label": "Gelatin Trick 2.0 | Lead 1",
+          "role": "lander"
+        },
+        {
+          "slug": "micropb",
+          "type": "l",
+          "label": "Gelatin Trick 2.0 | Lead 1.1 PB",
+          "role": "lander"
+        },
+        {
+          "slug": "microaf",
+          "type": "l",
+          "label": "Gelatin Trick 2.0 | Lead 1.2 AF",
+          "role": "lander"
+        }
+      ]
+    }
+  },
+  "MEMOFIX": {
+    "template_domain": "fg.vitaljourneyhub.online",
+    "template_campaign": "6a836076a7b4db3f6d9191a9",
+    "template_vslmemo_player": "6a832f2a5a7c58405c4ad299",
+    "vturb_folder_id": "6a832f0f3748ed29b068036b",
+    "vturb_templates": {
+      "vslmemo": "6a832f2a5a7c58405c4ad299"
+    },
+    "vturb_video_names": {
+      "vslmemo": "PAGE 2 - MEMOFIX - Honey Trick -1VSL2-ML01-L (PITCH 48,20)-002.mp4 - {lc}"
+    },
+    "pages": {
+      "prememo": [
+        "domain",
+        "campaign"
+      ],
+      "vslmemo": [
+        "domain",
+        "campaign",
+        "vslmemo"
+      ]
+    },
+    "redtrack": {
+      "aff_id": "5370",
+      "lander_title": "{lc} | {label} | Lander | YouTube | MEMOFIX | BuyGoods | WL | GEX | {domain}",
+      "prelander_title": "{lc} | Pre-Lander | Youtube | BuyGoods | MEMOFIX | YT | PRESELL | {domain}",
+      "stream_title": "{lc} | Youtube | BuyGoods | MEMOFIX | PRE -> VSL -> DTC | {domain}",
+      "campaign_title": "{lc} | {gestor} | Youtube - {conta} | BuyGoods | MEMOFIX | YT | VSL | {domain}",
+      "offer_ids": [
+        "6a832fa5a7b4db3f6d76ff6e",
+        "6a832fa53cbf06be9f45361f",
+        "6a832fa43cbf06be9f45361c"
+      ],
+      "vsl_script": "<script>var mysrc = \"https://tracking.buygoods.com/track/?a=13162&firstcookie=0\"+\"&tracking_redirect=&referrer=\"+encodeURIComponent(document.referrer)+\"&sessid2=\"+ReadCookie('sessid2')+\"&product=mem2,mem3,mem6&vid1=&vid2=&vid3=&caller_url=\"+encodeURIComponent(window.location.href); if(typeof add_to_cart !== 'undefined') { mysrc = mysrc+'&add_to_cart='+add_to_cart; } var newScript = document.createElement('script'); newScript.type = 'text/javascript'; newScript.defer = true; newScript.src = mysrc; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(newScript, s); function ReadCookie(name){name += '='; var parts = document.cookie.split(/;\\s*/);for (var i = 0; i < parts.length; i++) {var part = parts[i]; if (part.indexOf(name) == 0) return part.substring(name.length)} return '';}</script>\n<script type=\"text/javascript\">setTimeout(function () {var i = document.createElement(\"iframe\"),oid = new URLSearchParams(window.location.search);i.async = true;i.style=\"display:none\";i.setAttribute(\"src\", \"https://buygoods.com/affiliates/go/conversion/iframe/bg?a=13162&t=7379d0102ab4e2a2c9cdc69a9f5711ca&s=\"+ReadCookie('sessid2'));document.body.appendChild(i);}, 1000);}</script>",
+      "pages": [
+        {
+          "slug": "prememo",
+          "type": "p",
+          "label": "PRESELL",
+          "role": "prelander"
+        },
+        {
+          "slug": "vslmemo",
+          "type": "l",
+          "label": "Honey Trick | VSL Lead 1",
+          "role": "lander"
+        }
+      ]
+    }
+  },
+  "JellyFill": {
+    "click_remap": [
+      [
+        "/click/4",
+        "/click/1"
+      ],
+      [
+        "/click/5",
+        "/click/2"
+      ],
+      [
+        "/click/6",
+        "/click/3"
+      ]
+    ],
+    "template_domain": "fg.growyourwellnesshabitstoday.lat",
+    "template_campaign": "6a5f9be0f6f2a91afa2e3ca7",
+    "template_micro01_player": "6a5fe3e6784316625b771598",
+    "vturb_folder_id": "6a5fcbbac889ce76722c60fd",
+    "vturb_templates": {
+      "micro01": "6a636ab681a7ab6a93e7df1d"
+    },
+    "vturb_video_names": {
+      "micro01": "Microlead 1.1 (BB)- Jelly Fill.mp4 - {lc}"
+    },
+    "pages": {
+      "prehorse": [
+        "domain",
+        "campaign"
+      ],
+      "microfill": [
+        "domain",
+        "campaign",
+        "micro01"
+      ]
+    },
+    "redtrack": {
+      "lander_title": "{lc} | Horse Gelatin 1.0 | {label} | Lander | YouTube | Jellyfill | PagAmerican | ED | GEX | fg.{domain}",
+      "prelander_title": "{lc} | Pre-Lander | Youtube | PagAmerican | JellyFill | HORSE GELATIN | GEX | YT | VSL | {domain}",
+      "stream_title": "{lc} | Youtube | PagAmerican | JellyFill | PRE -> VSL -> DTC | {domain}",
+      "campaign_title": "{lc} | {gestor} | Youtube - {conta} | PagAmerican | JellyFill | YT | VSL | {domain}",
+      "gestor_offer_ids": {
+        "GH": [
+          "6a70b7a84dff4793d842f30b",
+          "6a70b7a94ca46d7ca5fcda74",
+          "6a70b7a94dff4793d842f310"
+        ],
+        "AN": [
+          "6a5fce29f6f2a91afa524f1f",
+          "6a5fce60f6f2a91afa526c7d",
+          "6a5fce80a93ac67cf5654393"
+        ]
+      },
+      "pages": [
+        {
+          "slug": "prehorse",
+          "type": "p",
+          "label": "VSL",
+          "role": "prelander"
+        },
+        {
+          "slug": "microfill",
+          "type": "l",
+          "label": "Micro Lead 1.1 BB",
+          "role": "lander"
+        }
+      ]
+    }
+  }
+}
