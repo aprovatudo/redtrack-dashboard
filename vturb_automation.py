@@ -288,9 +288,32 @@ def add_security_domain(page, context, jwt_token, player_id: str, domain: str):
 def run_setup_lc(lc: str, dominio: str = None, oferta: str = "BrainMary") -> dict:
     """
     Duplica os templates da oferta para o LC fornecido.
-    Tenta login HTTP primeiro (funciona no Streamlit Cloud); fallback para Playwright.
+    Ordem de tentativa:
+      1. Webhook local (Mac com Playwright) via VTURB_WEBHOOK_URL
+      2. Login HTTP direto (sem browser)
+      3. Playwright local
     Retorna {slug: novo_player_id}.
     """
+    # 1. Webhook local
+    webhook_url   = _os.getenv("VTURB_WEBHOOK_URL", "").rstrip("/")
+    webhook_token = _os.getenv("VTURB_WEBHOOK_TOKEN", "vturb-secret-2026")
+    if webhook_url:
+        print(f"[vturb] Chamando webhook local: {webhook_url}/vturb/setup", flush=True)
+        try:
+            resp = _requests.post(
+                f"{webhook_url}/vturb/setup",
+                json={"lc": lc, "oferta": oferta, "dominio": dominio},
+                headers={"X-Token": webhook_token, "Content-Type": "application/json"},
+                timeout=300,
+            )
+            if resp.ok:
+                player_ids = resp.json().get("player_ids", {})
+                print(f"[vturb] ✓ Webhook OK: {player_ids}", flush=True)
+                return player_ids
+            print(f"[vturb] Webhook retornou {resp.status_code}: {resp.text[:200]}", flush=True)
+        except Exception as e:
+            print(f"[vturb] Webhook indisponível ({e}) — tentando método direto...", flush=True)
+
     config          = _load_offer_config(oferta)
     templates       = config["vturb_templates"]
     video_names     = config["vturb_video_names"]
