@@ -1177,9 +1177,15 @@ elif pagina == "⚡ Agente Dev":
         _raw_lines  = []
         _html_lines = []
 
+        _env = os.environ.copy()
+        try:
+            _env["VTURB_WEBHOOK_URL"]   = st.secrets["VTURB_WEBHOOK_URL"]
+            _env["VTURB_WEBHOOK_TOKEN"] = st.secrets.get("VTURB_WEBHOOK_TOKEN", "vturb-secret-2026")
+        except Exception:
+            pass
         _proc = subprocess.Popen(
             _cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-            text=True, cwd=_script_dir,
+            text=True, cwd=_script_dir, env=_env,
         )
         for _line in _proc.stdout:
             _raw_lines.append(_line.rstrip())
