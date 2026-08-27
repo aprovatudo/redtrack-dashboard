@@ -1157,14 +1157,9 @@ elif pagina == "⚡ Agente Dev":
         if _skip_ftp:           _cmd.append("--skip-ftp")
         if _gestor:             _cmd.append(f"--gestor={_gestor}")
         if _campaign_id.strip(): _cmd.append(f"--campaign-id={_campaign_id.strip()}")
-        try:
-            _wh_url = st.secrets["VTURB_WEBHOOK_URL"]
-            _wh_tok = st.secrets.get("VTURB_WEBHOOK_TOKEN", "vturb-secret-2026")
-            if _wh_url:
-                _cmd.append(f"--webhook-url={_wh_url}")
-                _cmd.append(f"--webhook-token={_wh_tok}")
-        except Exception:
-            pass
+        if "VTURB_WEBHOOK_URL" in st.secrets:
+            _cmd.append(f"--webhook-url={st.secrets['VTURB_WEBHOOK_URL']}")
+            _cmd.append(f"--webhook-token={st.secrets.get('VTURB_WEBHOOK_TOKEN', 'vturb-secret-2026')}")
         for _slug, _pid in _player_inputs.items():
             if _pid.strip():
                 _cmd.append(f"--player-{_slug}={_pid.strip()}")
