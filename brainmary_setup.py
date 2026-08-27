@@ -149,22 +149,40 @@ def main():
         sys.exit(1)
 
     # 2. Vturb
+    vturb_cloudflare_blocked = False
     if not args.skip_vturb:
-        vt = run_vturb(args.lc, args.dominio, args.oferta, args.dry_run)
-        if vt:
-            for slug, pid in vt.items():
-                player_ids.setdefault(slug, pid)
+        try:
+            vt = run_vturb(args.lc, args.dominio, args.oferta, args.dry_run)
+            if vt:
+                for slug, pid in vt.items():
+                    player_ids.setdefault(slug, pid)
+        except RuntimeError as e:
+            if "VTURB_CLOUDFLARE" in str(e):
+                vturb_cloudflare_blocked = True
+                print("\n⚠  VTURB — Cloudflare bloqueou o acesso neste ambiente.")
+                print("   Duplique os players manualmente no painel do Vturb.")
+                print("   Depois rode o upload separadamente com:")
+                print(f"   --skip-redtrack --skip-adspect --campaign-id {campaign_id} \\")
+                config_tmp = _load_offer_config(args.oferta)
+                for slug in config_tmp.get("vturb_templates", {}):
+                    print(f"   --player-{slug}=<ID_DO_PLAYER_{slug.upper()}>", end=" ")
+                print()
+            else:
+                raise
 
-    config = _load_offer_config(args.oferta)
-    expected_slugs = list(config.get("vturb_templates", {}).keys())
-    missing = [s for s in expected_slugs if s not in player_ids]
-    if missing:
-        print(f"\nERRO: player IDs faltando para: {missing}")
-        sys.exit(1)
+    if not vturb_cloudflare_blocked:
+        config = _load_offer_config(args.oferta)
+        expected_slugs = list(config.get("vturb_templates", {}).keys())
+        missing = [s for s in expected_slugs if s not in player_ids]
+        if missing:
+            print(f"\nERRO: player IDs faltando para: {missing}")
+            sys.exit(1)
 
     # 3. Upload (FTP ou GitHub Pages)
     lander_ids = rt.get("lander_ids", []) if rt else []
-    if args.github_pages:
+    if vturb_cloudflare_blocked:
+        print("\n⚠  FTP pulado — aguardando IDs dos players Vturb.")
+    elif args.github_pages:
         run_github_pages(args.conta, args.dominio, campaign_id, player_ids, lander_ids, args.oferta, args.zip, args.dry_run)
     elif not args.skip_ftp:
         run_ftp(args.dominio, campaign_id, player_ids, args.oferta, args.zip, args.dry_run, adspect_index_php)

@@ -309,13 +309,18 @@ def run_setup_lc(lc: str, dominio: str = None, oferta: str = "BrainMary") -> dic
         http_session, token = _login_http()
         use_http = True
         print("[vturb] Login HTTP OK.", flush=True)
-    except Exception as e:
-        print(f"[vturb] HTTP falhou ({e}), tentando Playwright...", flush=True)
+    except RuntimeError as cf_err:
+        if "Cloudflare" in str(cf_err):
+            raise RuntimeError(
+                "VTURB_CLOUDFLARE: Cloudflare bloqueou o acesso ao Vturb neste ambiente. "
+                "Duplique os players manualmente no painel do Vturb e informe os IDs."
+            ) from cf_err
+        print(f"[vturb] HTTP falhou ({cf_err}), tentando Playwright...", flush=True)
         try:
             from playwright.sync_api import sync_playwright as _sp
             pw, browser, ctx, page, token = _launch_and_login()
         except Exception as e2:
-            raise RuntimeError(f"Playwright também falhou: {e2}") from e2
+            raise RuntimeError(f"Playwright também falhou: {e2}") from cf_err
 
     def _call(method, path, body=None):
         if use_http:
