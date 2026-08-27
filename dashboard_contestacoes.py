@@ -1186,6 +1186,24 @@ elif pagina == "⚡ Agente Dev":
             _env["VTURB_WEBHOOK_TOKEN"] = st.secrets.get("VTURB_WEBHOOK_TOKEN", "vturb-secret-2026")
         except Exception:
             pass
+        try:
+            import json as _json_mod
+            _ftp_map = {"a": "Plano A", "b": "Plano B", "c": "Plano C", "d": "Plano D"}
+            _ftp_plans = {}
+            for _letter, _name in _ftp_map.items():
+                _sec_key = f"ftp_plano_{_letter}"
+                if _sec_key in st.secrets:
+                    _s = st.secrets[_sec_key]
+                    _ftp_plans[_name] = {
+                        "account_id": _s["account_id"],
+                        "host":       _s["host"],
+                        "ssh_port":   int(_s["ssh_port"]),
+                        "password":   _s["password"],
+                    }
+            if _ftp_plans:
+                _env["FTP_PLANS_JSON"] = _json_mod.dumps(_ftp_plans)
+        except Exception:
+            pass
         _proc = subprocess.Popen(
             _cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
             text=True, cwd=_script_dir, env=_env,

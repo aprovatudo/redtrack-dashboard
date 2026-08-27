@@ -50,8 +50,16 @@ def _template_zip_path(oferta: str) -> str:
 
 
 def _load_plans() -> dict:
-    with open(_PLANS_FILE, encoding="utf-8") as f:
-        return json.load(f)
+    if os.path.exists(_PLANS_FILE):
+        with open(_PLANS_FILE, encoding="utf-8") as f:
+            return json.load(f)
+    env_json = os.environ.get("FTP_PLANS_JSON")
+    if env_json:
+        return json.loads(env_json)
+    raise FileNotFoundError(
+        f"ftp_plans.json não encontrado e FTP_PLANS_JSON não definido. "
+        "Configure os secrets do Streamlit com [ftp_plano_a] ... [ftp_plano_d]."
+    )
 
 
 def _load_cache() -> dict:
