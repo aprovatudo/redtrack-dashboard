@@ -140,7 +140,7 @@
     "moeda": "BRL"
   },
   "997-800-2393": {
-    "status_conta": "SUSPENDED",
+    "status_conta": "ENABLED",
     "moeda": "BRL"
   },
   "739-918-3982": {
@@ -472,7 +472,7 @@
     "moeda": "USD"
   },
   "757-628-9109": {
-    "status_conta": "ENABLED",
+    "status_conta": "SUSPENDED",
     "moeda": "USD"
   },
   "921-679-3813": {
@@ -636,11 +636,209 @@
     "moeda": "USD"
   },
   "701-550-2839": {
-    "status_conta": "SUSPENDED",
+    "status_conta": "ENABLED",
     "moeda": "BRL"
   },
   "684-357-0692": {
     "status_conta": "ENABLED",
     "moeda": "USD"
+  },
+  "532-821-9933": {
+    "status_conta": "ENABLED"
+  },
+  "646-041-2543": {
+    "status_conta": "ENABLED"
+  },
+  "987-916-5292": {
+    "status_conta": "ENABLED"
+  },
+  "967-223-8423": {
+    "status_conta": "ENABLED"
+  },
+  "888-105-5000": {
+    "status_conta": "ENABLED"
+  },
+  "564-104-9121": {
+    "status_conta": "ENABLED"
+  },
+  "648-087-2778": {
+    "status_conta": "ENABLED"
+  },
+  "939-931-3045": {
+    "status_conta": "ENABLED"
+  },
+  "773-787-3300": {
+    "status_conta": "ENABLED"
+  },
+  "775-496-5892": {
+    "status_conta": "ENABLED"
+  },
+  "408-047-4009": {
+    "status_conta": "ENABLED"
+  },
+  "285-779-3935": {
+    "status_conta": "ENABLED"
+  },
+  "938-971-9858": {
+    "status_conta": "ENABLED"
+  },
+  "570-751-9572": {
+    "status_conta": "ENABLED"
+  },
+  "459-718-5849": {
+    "status_conta": "ENABLED"
+  },
+  "587-670-5417": {
+    "status_conta": "ENABLED"
+  },
+  "841-803-4342": {
+    "status_conta": "ENABLED"
+  },
+  "385-532-4468": {
+    "status_conta": "ENABLED"
+  },
+  "185-205-1913": {
+    "status_conta": "ENABLED"
+  },
+  "827-776-8990": {
+    "status_conta": "ENABLED"
+  },
+  "998-410-7756": {
+    "status_conta": "ENABLED"
+  },
+  "666-698-8611": {
+    "status_conta": "ENABLED"
+  },
+  "586-172-0849": {
+    "status_conta": "ENABLED"
+  },
+  "891-570-9074": {
+    "status_conta": "ENABLED"
+  },
+  "428-795-1464": {
+    "status_conta": "ENABLED"
+  },
+  "454-546-2780": {
+    "status_conta": "ENABLED"
+  },
+  "552-206-3915": {
+    "status_conta": "ENABLED"
+  },
+  "916-544-9817": {
+    "status_conta": "ENABLED"
+  },
+  "485-759-8664": {
+    "status_conta": "ENABLED"
+  },
+  "619-256-6548": {
+    "status_conta": "ENABLED"
+  },
+  "928-735-4394": {
+    "status_conta": "ENABLED"
+  },
+  "746-076-5078": {
+    "status_conta": "ENABLED"
+  },
+  "704-753-9352": {
+    "status_conta": "ENABLED"
+  },
+  "306-782-5468": {
+    "status_conta": "ENABLED"
+  },
+  "356-769-2492": {
+    "status_conta": "ENABLED"
+  },
+  "335-530-8050": {
+    "status_conta": "ENABLED"
+  },
+  "734-488-8498": {
+    "status_conta": "ENABLED"
+  },
+  "209-904-5143": {
+    "status_conta": "ENABLED"
+  },
+  "286-270-4919": {
+    "status_conta": "ENABLED"
+  },
+  "429-219-1756": {
+    "status_conta": "ENABLED"
+  },
+  "644-694-2929": {
+    "status_conta": "ENABLED"
+  },
+  "723-114-1429": {
+    "status_conta": "ENABLED"
+  },
+  "200-782-8546": {
+    "status_conta": "ENABLED"
+  },
+  "511-007-8945": {
+    "status_conta": "ENABLED"
+  },
+  "938-180-0556": {
+    "status_conta": "ENABLED"
+  },
+  "617-499-5398": {
+    "status_conta": "ENABLED"
+  },
+  "989-094-4900": {
+    "status_conta": "ENABLED"
+  },
+  "491-069-3123": {
+    "status_conta": "ENABLED"
+  },
+  "770-764-9648": {
+    "status_conta": "ENABLED"
+  },
+  "724-769-9701": {
+    "status_conta": "ENABLED"
+  },
+  "931-427-1868": {
+    "status_conta": "ENABLED"
+  },
+  "759-163-3952": {
+    "status_conta": "ENABLED"
+  },
+  "576-021-8727": {
+    "status_conta": "ENABLED"
+  },
+  "612-619-4419": {
+    "status_conta": "ENABLED"
+  },
+  "702-802-8599": {
+    "status_conta": "ENABLED"
+  },
+  "367-548-2484": {
+    "status_conta": "ENABLED"
+  },
+  "713-115-7239": {
+    "status_conta": "ENABLED"
+  },
+  "166-833-8137": {
+    "status_conta": "ENABLED"
+  },
+  "503-822-9345": {
+    "status_conta": "ENABLED"
+  },
+  "410-715-4105": {
+    "status_conta": "ENABLED"
+  },
+  "786-985-8094": {
+    "status_conta": "ENABLED"
+  },
+  "502-583-4054": {
+    "status_conta": "ENABLED"
+  },
+  "573-015-8684": {
+    "status_conta": "ENABLED"
+  },
+  "832-374-9888": {
+    "status_conta": "ENABLED"
+  },
+  "349-823-8356": {
+    "status_conta": "ENABLED"
+  },
+  "149-602-3000": {
+    "status_conta": "ENABLED"
   }
 }
