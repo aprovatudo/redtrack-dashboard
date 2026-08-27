@@ -4,3 +4,4 @@ python-dotenv
 plotly
 pyotp
 pandas
+paramiko
