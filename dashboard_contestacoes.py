@@ -1,5 +1,8 @@
 import json
 import os
+import re
+import subprocess
+import sys
 import time
 from datetime import date, datetime, timedelta
 from collections import defaultdict
@@ -60,6 +63,43 @@ def carregar_fegsys_done() -> set:
         return set()
     with open(ARQUIVO_FEGSYS_DONE, encoding="utf-8") as f:
         return set(json.load(f))
+
+def sincronizar_status_bigquery() -> tuple[int, str | None]:
+    """Atualiza account_details.json usando gads_tokens do BigQuery como fonte de status."""
+    if not _BQ_AVAILABLE or not os.path.exists(ARQUIVO_CREDENTIALS):
+        return 0, "BigQuery não disponível"
+    try:
+        creds = service_account.Credentials.from_service_account_file(
+            ARQUIVO_CREDENTIALS,
+            scopes=["https://www.googleapis.com/auth/cloud-platform"],
+        )
+        client = bigquery.Client(credentials=creds, project="grupofeg-lakehouse")
+        rows = list(client.query("""
+            SELECT customer_id, active
+            FROM gold_feg.gads_tokens
+            WHERE customer_id IS NOT NULL
+        """).result())
+
+        detalhes = carregar_detalhes()
+        atualizados = 0
+        for row in rows:
+            cid = str(row["customer_id"])
+            if len(cid) != 10:
+                continue
+            formatted = f"{cid[:3]}-{cid[3:6]}-{cid[6:]}"
+            novo_status = "ENABLED" if row["active"] else "SUSPENDED"
+            existente = detalhes.get(formatted, {}).get("status_conta")
+            if existente != novo_status:
+                if formatted not in detalhes:
+                    detalhes[formatted] = {}
+                detalhes[formatted]["status_conta"] = novo_status
+                atualizados += 1
+
+        salvar_detalhes(detalhes)
+        return atualizados, None
+    except Exception as e:
+        return 0, str(e)
+
 
 def _ler_ultimo_serial() -> int:
     if os.path.exists(ARQUIVO_SERIAL):
@@ -473,7 +513,7 @@ with st.sidebar:
     st.divider()
     pagina = st.radio(
         "nav",
-        ["📋 Contestações", "🔗 Convites MCC", "📈 Click Time", "🔑 FEG Tracker"],
+        ["📋 Contestações", "📈 Click Time", "🔑 FEG Tracker", "⚡ Agente Dev"],
         label_visibility="collapsed",
     )
 
@@ -613,178 +653,6 @@ if pagina == "📋 Contestações":
             else:
                 st.write("Nenhum ainda.")
 
-
-# ════════════════════════════════════════════════════════
-# PÁGINA 2 — CONVITES MCC
-# ════════════════════════════════════════════════════════
-elif pagina == "🔗 Convites MCC":
-    # Auto-sync silencioso: detecta e adiciona novas contas do Redtrack
-    _novas = _sync_novas_contas_redtrack()
-    if _novas > 0:
-        st.toast(f"✅ {_novas} nova(s) conta(s) adicionada(s) automaticamente!", icon="🔗")
-
-    contas = carregar_contas()
-
-    col_titulo, col_btn = st.columns([4, 1])
-    with col_titulo:
-        st.subheader("Convites MCC")
-        st.caption("Acompanhe o status de cada convite enviado para vinculação na MCC")
-    with col_btn:
-        st.write("")
-        st.write("")
-        if st.button("🔄 Sincronizar com Google Ads", use_container_width=True):
-            with st.spinner("Consultando API..."):
-                contas, atualizados, erro = sincronizar_com_api(contas)
-            if erro:
-                st.error(f"Erro: {erro}")
-            else:
-                salvar_contas(contas)
-                st.success(f"{atualizados} conta(s) atualizada(s)!")
-                st.rerun()
-
-    total_c = len(contas)
-    aceitos = sum(1 for c in contas if c["status"] == "✅ Aceito")
-    pendentes_c = sum(1 for c in contas if c["status"] == "⏳ Pendente")
-    suspensas_c = sum(1 for c in contas if c["status"] == "🚫 Suspensa")
-    nao_enviados = sum(1 for c in contas if c["status"] == "📤 Não enviado")
-    elegíveis = total_c - suspensas_c
-    progresso = round(aceitos / elegíveis * 100) if elegíveis > 0 else 0
-
-    if "filtro_contas_ativo" not in st.session_state:
-        st.session_state.filtro_contas_ativo = "Todos"
-
-    st.markdown("""
-    <style>
-    div[data-testid="column"] button[kind="secondary"] {
-        background: #1e1e2e; border: 1px solid #333; border-radius: 10px;
-        padding: 16px 8px; width: 100%; text-align: left; cursor: pointer;
-    }
-    div[data-testid="column"] button[kind="secondary"]:hover { border-color: #888; }
-    </style>
-    """, unsafe_allow_html=True)
-
-    col1, col2, col3, col4, col5 = st.columns(5)
-    cartoes = [
-        (col1, "Todos",           f"**{total_c}**\nTotal"),
-        (col2, "✅ Aceito",       f"**{aceitos}**\n✅ Aceitos"),
-        (col3, "⏳ Pendente",     f"**{pendentes_c}**\n⏳ Pendentes"),
-        (col4, "📤 Não enviado",  f"**{nao_enviados}**\n📤 Não enviados"),
-        (col5, "🚫 Suspensa",     f"**{suspensas_c}**\n🚫 Suspensas"),
-    ]
-    for col, valor, label in cartoes:
-        ativo = st.session_state.filtro_contas_ativo == valor
-        with col:
-            st.markdown(f"{'### ' if ativo else '#### '}{label.split(chr(10))[1]}", unsafe_allow_html=False)
-            st.markdown(f"# {label.split(chr(10))[0].replace('**','')}")
-            if st.button("●" if ativo else "○", key=f"btn_{valor}", help=f"Filtrar: {valor}", use_container_width=True):
-                st.session_state.filtro_contas_ativo = valor
-                st.rerun()
-
-    st.progress(progresso / 100)
-    st.divider()
-
-    busca = st.text_input("Buscar por ID ou nome", key="busca_contas")
-    filtro_status = st.session_state.filtro_contas_ativo
-
-    filtradas = [
-        c for c in contas
-        if (filtro_status == "Todos" or c["status"] == filtro_status)
-        and (not busca or busca.lower() in c["id"].lower() or busca.lower() in c["nome"].lower())
-    ]
-
-    st.markdown(f"**{len(filtradas)} conta(s) encontrada(s)**")
-    st.divider()
-
-    # Marcação em massa de contas suspensas
-    with st.expander("🚫 Marcar contas como Suspensas em massa"):
-        ids_bulk = st.text_area(
-            "Cole os IDs das contas (um por linha):",
-            key="ids_suspensas_bulk",
-            placeholder="123-456-7890\n234-567-8901\n..."
-        )
-        if st.button("✔ Aplicar — marcar como 🚫 Suspensa", key="btn_bulk_suspensa"):
-            ids_lista = [x.strip() for x in ids_bulk.splitlines() if x.strip()]
-            ids_mapa = {c["id"]: c for c in contas}
-            marcadas = 0
-            for acc_id in ids_lista:
-                if acc_id in ids_mapa and ids_mapa[acc_id]["status"] != "🚫 Suspensa":
-                    ids_mapa[acc_id]["status"] = "🚫 Suspensa"
-                    marcadas += 1
-                    key = f"sel_{acc_id}"
-                    if key in st.session_state:
-                        del st.session_state[key]
-            salvar_contas(contas)
-            st.success(f"{marcadas} conta(s) marcada(s) como suspensas!")
-            st.rerun()
-
-    st.divider()
-
-    # ── Tabela com data_editor ────────────────────────────
-    opcoes = ["✅ Aceito", "⏳ Pendente", "📤 Não enviado", "🚫 Suspensa"]
-
-    rows = []
-    for c in filtradas:
-        sc = c.get("status_conta", "")
-        moeda = c.get("moeda", "")
-        if c["status"] == "🚫 Suspensa":
-            conta_str = "🔴 Suspensa"
-        elif sc:
-            lbl, _ = STATUS_CONTA.get(sc, (f"❓ {sc}", "normal"))
-            conta_str = f"{lbl} {moeda}".strip()
-        else:
-            conta_str = "—"
-
-        rows.append({
-            "ID":           c["id"],
-            "Nome":         c["nome"],
-            "Convite":      "— Nulo" if c["status"] == "🚫 Suspensa" else c["status"],
-            "Data convite": c.get("data_convite") or "—",
-            "Conta":        conta_str,
-            "Status":       c["status"],
-        })
-
-    df_mcc = pd.DataFrame(rows) if rows else pd.DataFrame(
-        columns=["ID", "Nome", "Convite", "Data convite", "Conta", "Status"]
-    )
-
-    if "editor_v" not in st.session_state:
-        st.session_state["editor_v"] = 0
-
-    edited_df = st.data_editor(
-        df_mcc,
-        column_config={
-            "ID":          st.column_config.TextColumn("ID",           disabled=True, width="medium"),
-            "Nome":        st.column_config.TextColumn("Nome",         disabled=True, width="large"),
-            "Convite":     st.column_config.TextColumn("Convite",      disabled=True, width="medium"),
-            "Data convite":st.column_config.TextColumn("Data convite", disabled=True, width="small"),
-            "Conta":       st.column_config.TextColumn("Conta",        disabled=True, width="medium"),
-            "Status":      st.column_config.SelectboxColumn(
-                               "Alterar status", options=opcoes, width="medium"
-                           ),
-        },
-        hide_index=True,
-        use_container_width=True,
-        key=f"editor_mcc_{st.session_state['editor_v']}",
-    )
-
-    st.divider()
-    col_info, col_save_btn = st.columns([3, 1])
-    col_info.caption("Edite o status na coluna 'Alterar status' e clique em Salvar.")
-    if col_save_btn.button("💾 Salvar alterações", use_container_width=True, type="primary", key="btn_salvar_tabela"):
-        id_to_novo = dict(zip(edited_df["ID"], edited_df["Status"]))
-        alterados = 0
-        for conta in contas:
-            novo = id_to_novo.get(conta["id"])
-            if novo and novo != conta["status"]:
-                conta["status"] = novo
-                alterados += 1
-        salvar_contas(contas)
-        st.session_state["editor_v"] += 1
-        if alterados:
-            st.success(f"{alterados} conta(s) atualizada(s)!")
-        else:
-            st.info("Nenhuma alteração detectada.")
-        st.rerun()
 
 
 # ════════════════════════════════════════════════════════
@@ -1076,22 +944,37 @@ elif pagina == "📈 Click Time":
 # PÁGINA 4 — FEG TRACKER
 # ════════════════════════════════════════════════════════
 elif pagina == "🔑 FEG Tracker":
-    col_titulo_feg, col_btn_feg = st.columns([4, 1])
+    _novas = _sync_novas_contas_redtrack()
+    if _novas > 0:
+        st.toast(f"✅ {_novas} nova(s) conta(s) adicionada(s) do RedTrack!", icon="🔗")
+
+    col_titulo_feg, col_btn1, col_btn2 = st.columns([3, 1, 1])
     with col_titulo_feg:
         st.subheader("Contas com Token FEG Conectado")
         st.caption("Contas que concluíram a autorização OAuth no tracker.fegsys.com")
-    with col_btn_feg:
+    with col_btn1:
         st.write("")
         st.write("")
-        if st.button("🔄 Atualizar", use_container_width=True):
+        if st.button("🔄 Atualizar tokens", use_container_width=True):
             carregar_fegsys_done.clear()
             st.rerun()
+    with col_btn2:
+        st.write("")
+        st.write("")
+        if st.button("🟢 Sincronizar status", use_container_width=True):
+            with st.spinner("Consultando BigQuery..."):
+                n, erro = sincronizar_status_bigquery()
+            if erro:
+                st.error(f"Erro: {erro}")
+            else:
+                st.success(f"{n} status atualizado(s)!")
+                st.rerun()
 
     fegsys_ids = carregar_fegsys_done()
     contas_todas = carregar_contas()
 
-    # Total de contas elegíveis (não suspensas) para calcular progresso
-    total_elegivel = sum(1 for c in contas_todas if c.get("status_conta") == "ENABLED")
+    # Total elegível: ENABLED + sem status (novas ainda não sincronizadas)
+    total_elegivel = sum(1 for c in contas_todas if c.get("status_conta") in ("ENABLED", ""))
     total_conectadas = sum(1 for acc_id in fegsys_ids
                           if any(c["id"] == acc_id and c.get("status_conta") == "ENABLED"
                                  for c in contas_todas))
@@ -1136,10 +1019,12 @@ elif pagina == "🔑 FEG Tracker":
     else:
         st.info("Nenhuma conta encontrada com o filtro atual." if busca_feg else "Nenhuma conta com token FEG conectado ainda.")
 
-    # Contas elegíveis SEM token (apenas ENABLED)
+    # Contas SEM token: ENABLED + novas sem status; exclui suspensas (por status_conta ou prefixo 🚫)
     sem_token = [
         c for c in contas_todas
-        if c.get("status_conta") == "ENABLED"
+        if c.get("status_conta") in ("ENABLED", "")
+        and c.get("status_conta") != "SUSPENDED"
+        and c.get("status") != "🚫 Suspensa"
         and c["id"] not in fegsys_ids
     ]
     with st.expander(f"⏳ Contas ainda sem token ({len(sem_token)})"):
@@ -1157,3 +1042,187 @@ elif pagina == "🔑 FEG Tracker":
             )
         else:
             st.success("Todas as contas elegíveis já têm token conectado!")
+
+
+# ════════════════════════════════════════════════════════
+# PÁGINA 4 — AGENTE DEV
+# ════════════════════════════════════════════════════════
+elif pagina == "⚡ Agente Dev":
+    st.subheader("⚡ Agente Dev")
+    st.caption("Automação de setup para novas contas")
+    st.divider()
+
+    _offer_configs_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "offer_configs.json")
+    _templates_dir      = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")
+    _available_ofertas  = ["BrainMary"]
+    _offer_cfg_all = {}
+    if os.path.exists(_offer_configs_path):
+        import json as _json
+        with open(_offer_configs_path, encoding="utf-8") as _f:
+            _offer_cfg_all = _json.load(_f)
+        _available_ofertas = list(_offer_cfg_all.keys())
+
+    oferta = st.selectbox("Oferta", _available_ofertas)
+
+    # Gestor — sempre visível; para JellyFill também define qual offer_id usar
+    _gestor = st.selectbox("Gestor", ["GH", "AN"])
+
+    # ZIP do template
+    _zip_path = os.path.join(_templates_dir, f"{oferta}.zip")
+    _zip_exists = os.path.exists(_zip_path)
+    if _zip_exists:
+        _col_badge, _col_sub = st.columns([4, 1])
+        with _col_badge:
+            st.success(f"✓ Template ZIP carregado: **{oferta}.zip**")
+        with _col_sub:
+            _substituir = st.checkbox("Substituir", key=f"sub_zip_{oferta}")
+    else:
+        _substituir = True
+        st.warning(f"Nenhum template ZIP para **{oferta}**. Faça upload abaixo.")
+
+    if not _zip_exists or _substituir:
+        _uploaded = st.file_uploader(f"Upload do ZIP template ({oferta})", type=["zip"], key=f"zip_{oferta}")
+        if _uploaded:
+            os.makedirs(_templates_dir, exist_ok=True)
+            with open(_zip_path, "wb") as _zf:
+                _zf.write(_uploaded.read())
+            st.success(f"✓ ZIP salvo em templates/{oferta}.zip")
+            st.rerun()
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        _lc      = st.text_input("Nome da conta", placeholder="LC160")
+    with col2:
+        _conta   = st.text_input("Conta Google Ads", placeholder="123-456-7890")
+    with col3:
+        _dominio = st.text_input("Domínio", placeholder="mynewdomain.online")
+
+    st.markdown("")
+    oc1, oc2, oc3, oc4, oc5 = st.columns(5)
+    with oc1: _dry_run       = st.checkbox("Dry-run (simular)")
+    with oc2: _skip_redtrack = st.checkbox("Pular RedTrack")
+    with oc3: _skip_vturb    = st.checkbox("Pular Vturb")
+    with oc4: _use_adspect   = st.checkbox("Usar Adspect")
+    with oc5: _skip_ftp      = st.checkbox("Pular upload")
+
+    # Slugs de players desta oferta (ex: ["vsl01","micro01"] ou ["vsl01","vsl02","vsl03"])
+    _offer_slugs = list((_json.load(open(_offer_configs_path, encoding="utf-8")) if os.path.exists(_offer_configs_path) else {}).get(oferta, {}).get("vturb_templates", {}).keys()) if os.path.exists(_offer_configs_path) else ["vsl01", "micro01"]
+
+    _campaign_id  = ""
+    _player_inputs = {}
+    if _skip_redtrack or _skip_vturb:
+        st.markdown("")
+        _extra_cols = st.columns(1 + len(_offer_slugs)) if _skip_vturb else st.columns(2)
+        _col_idx = 0
+        if _skip_redtrack:
+            _campaign_id = _extra_cols[_col_idx].text_input("Campaign ID (RedTrack)", placeholder="Cole o ID da campanha")
+            _col_idx += 1
+        if _skip_vturb:
+            for _slug in _offer_slugs:
+                _player_inputs[_slug] = _extra_cols[_col_idx].text_input(
+                    f"Player ID {_slug} (Vturb)", placeholder=f"Cole o player ID {_slug}"
+                )
+                _col_idx += 1
+
+    st.markdown("")
+    _run = st.button("▶  Executar Setup", use_container_width=True)
+
+    if _run:
+        if not all([_lc.strip(), _conta.strip(), _dominio.strip()]):
+            st.error("Preencha LC, Conta e Domínio antes de executar.")
+            st.stop()
+        if _skip_redtrack and not _campaign_id.strip():
+            st.error("Campaign ID obrigatório quando RedTrack está pulado.")
+            st.stop()
+        if _skip_vturb and not all(v.strip() for v in _player_inputs.values()):
+            st.error("Todos os Player IDs do Vturb são obrigatórios quando Vturb está pulado.")
+            st.stop()
+
+        _lc      = _lc.strip().upper()
+        _conta   = _conta.strip()
+        _dominio = _dominio.strip().lower()
+
+        _script_dir  = os.path.dirname(os.path.abspath(__file__))
+        _script_path = os.path.join(_script_dir, "brainmary_setup.py")
+        _venv_python = os.path.join(_script_dir, "venv", "bin", "python3")
+        _python_bin  = _venv_python if os.path.exists(_venv_python) else sys.executable
+
+        _cmd = [_python_bin, _script_path,
+                f"--lc={_lc}", f"--conta={_conta}", f"--dominio={_dominio}",
+                f"--oferta={oferta}"]
+        if _dry_run:            _cmd.append("--dry-run")
+        if _skip_redtrack:      _cmd.append("--skip-redtrack")
+        if _skip_vturb:         _cmd.append("--skip-vturb")
+        if not _use_adspect:    _cmd.append("--skip-adspect")
+        if _skip_ftp:           _cmd.append("--skip-ftp")
+        if _gestor:             _cmd.append(f"--gestor={_gestor}")
+        if _campaign_id.strip(): _cmd.append(f"--campaign-id={_campaign_id.strip()}")
+        for _slug, _pid in _player_inputs.items():
+            if _pid.strip():
+                _cmd.append(f"--player-{_slug}={_pid.strip()}")
+
+        def _color(line):
+            l = line.rstrip()
+            if not l: return ""
+            if l.startswith("=="): return f"<span style='color:#818cf8;font-weight:700'>{l}</span>"
+            if any(x in l for x in ["✓", " OK", "Pronto", "CONCLUÍDO", "Upload concluído"]):
+                return f"<span style='color:#4ade80'>{l}</span>"
+            if any(x in l for x in ["ERRO", "Error", "Traceback", "falhou"]):
+                return f"<span style='color:#f87171'>{l}</span>"
+            if l.startswith("["): return f"<span style='color:#93c5fd'>{l}</span>"
+            return f"<span style='color:#c8cce0'>{l}</span>"
+
+        st.markdown("**Log de execução**")
+        _log_area   = st.empty()
+        _raw_lines  = []
+        _html_lines = []
+
+        _proc = subprocess.Popen(
+            _cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            text=True, cwd=_script_dir,
+        )
+        for _line in _proc.stdout:
+            _raw_lines.append(_line.rstrip())
+            _html_lines.append(_color(_line))
+            _log_area.markdown(
+                "<div style='background:#0d0f18;border:1px solid #2d3148;border-radius:8px;"
+                "padding:1rem;font-family:monospace;font-size:0.78rem;line-height:1.7;"
+                "max-height:420px;overflow-y:auto;white-space:pre-wrap'>"
+                + "<br>".join(_html_lines) + "</div>",
+                unsafe_allow_html=True,
+            )
+        _proc.wait()
+        _ok = _proc.returncode == 0
+
+        st.markdown("")
+        _full = "\n".join(_raw_lines)
+        st.markdown(
+            "**Resultado** &nbsp; " + (
+                "<span style='background:#14532d;color:#4ade80;padding:2px 10px;border-radius:20px;font-size:0.75rem'>✓ Concluído</span>"
+                if _ok else
+                "<span style='background:#450a0a;color:#f87171;padding:2px 10px;border-radius:20px;font-size:0.75rem'>✗ Erro</span>"
+            ),
+            unsafe_allow_html=True,
+        )
+
+        if _ok:
+            _rows = [("LC", _lc), ("Conta", _conta), ("Domínio", f"fg.{_dominio}")]
+            _m = re.search(r"Campaign ID\s*:\s*(\S+)", _full)
+            if _m: _rows.append(("Campaign ID", _m.group(1).strip()))
+            for _m2 in re.finditer(r"Vturb (\S+)\s*:\s*(\S+)", _full):
+                _rows.append((f"Vturb {_m2.group(1)}", _m2.group(2).strip()))
+            _m3 = re.search(r"Páginas\s*:\s*(.+)", _full)
+            if _m3: _rows.append(("Páginas", _m3.group(1).strip()))
+
+            _tbl = "".join(
+                f"<tr><td style='color:#818cf8;font-weight:600;width:130px;padding:4px 8px'>{k}</td>"
+                f"<td style='padding:4px 8px'><code style='color:#e2e8f0;background:#0d0f18;"
+                f"padding:1px 6px;border-radius:4px'>{v}</code></td></tr>"
+                for k, v in _rows
+            )
+            st.markdown(
+                f"<div style='background:#1a1d27;border:1px solid #2d3148;border-radius:10px;"
+                f"padding:1.2rem 1.5rem'><table style='width:100%;border-collapse:collapse'>"
+                f"{_tbl}</table></div>",
+                unsafe_allow_html=True,
+            )
