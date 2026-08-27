@@ -126,7 +126,6 @@ def main():
     args, remaining = parser.parse_known_args()
 
     # Garante que os env vars do webhook estejam disponíveis para run_setup_lc
-    print(f"[setup] webhook_url={args.webhook_url!r}", flush=True)
     if args.webhook_url:
         os.environ["VTURB_WEBHOOK_URL"]   = args.webhook_url
     if args.webhook_token:
