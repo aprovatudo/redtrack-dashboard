@@ -288,6 +288,7 @@ def setup(lc_code: str, account_number: str, base_domain: str, oferta: str = "Br
     tracking_domain = f"fg.{base_domain}"
     cfg = _load_redtrack_config(oferta)
     aff_id = cfg.get("aff_id") or ""
+    aff_param_override = cfg.get("aff_param")  # ex: "aff=health-club" (Digistore)
 
     # Resolver gestor
     cfg = dict(cfg)
@@ -360,7 +361,12 @@ def setup(lc_code: str, account_number: str, base_domain: str, oferta: str = "Br
         else:
             t = page_cfg["lander_title"].format(lc=lc_code, label=label, domain=tracking_domain)
 
-        url = f"https://{base_domain}/{slug}?aff_id={page_aff_id}" if page_aff_id else f"https://{base_domain}/{slug}"
+        if aff_param_override:
+            url = f"https://{base_domain}/{slug}?{aff_param_override}"
+        elif page_aff_id:
+            url = f"https://{base_domain}/{slug}?aff_id={page_aff_id}"
+        else:
+            url = f"https://{base_domain}/{slug}"
         print(f"  [{i}/{total_pages + 2}] {role.capitalize()}: {slug} → {url}")
 
         obj = create_landing(t, url, ptype, domain_id, dry_run)
