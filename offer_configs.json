@@ -511,10 +511,10 @@
     },
     "redtrack": {
       "aff_param": "aff=health-club",
-      "lander_title": "{lc} | {label} | Lander | YouTube | GELATINMEISTER | Digistore | WL | GEX | {domain}",
-      "prelander_title": "{lc} | Pre-Lander | Youtube | Digistore | GELATINMEISTER | YT | PRESELL | {domain}",
-      "stream_title": "{lc} | Youtube | Digistore | GELATINMEISTER | PRE -> VSL -> DTC | {domain}",
-      "campaign_title": "{lc} | {gestor} | Youtube - {conta} | Digistore | GELATINMEISTER | YT | VSL | {domain}",
+      "lander_title": "{lc} | {label} | Lander | YouTube | Gelatin Meister | Digistore | WL | EUROCIRCLE | {domain}",
+      "prelander_title": "{lc} | Pre-Lander | Youtube | Digistore | Gelatin Meister | YT | PRESELL | {domain}",
+      "stream_title": "{lc} | Youtube | Digistore | Gelatin Meister | PRE -> VSL -> DTC | {domain}",
+      "campaign_title": "{lc} | {gestor} | Youtube - {conta} | Digistore | Gelatin Meister | YT | VSL | {domain}",
       "offer_ids": [
         "6a983e44dd89ff3f7efecd8f",
         "6a983e45de68b49387794776",
@@ -530,13 +530,13 @@
         {
           "slug": "vslmeister",
           "type": "l",
-          "label": "Gelatin Meister | VSL Lead 1",
+          "label": "Gelatin Meister 1.0 | VSL1 Lead 1",
           "role": "lander"
         },
         {
           "slug": "meisterlead3",
           "type": "l",
-          "label": "Gelatin Meister | Lead3 V2",
+          "label": "Gelatin Meister 1.0 | VSL1 Lead 3V2",
           "role": "lander"
         }
       ]
