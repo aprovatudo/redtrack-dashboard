@@ -320,7 +320,8 @@ def setup(lc_code: str, account_number: str, base_domain: str, oferta: str = "Br
     seen_slugs = set()
     for page in cfg["pages"]:
         if page["slug"] not in seen_slugs:
-            all_page_entries.append((page, cfg, aff_id))
+            page_aff = page.get("aff_id") or aff_id
+            all_page_entries.append((page, cfg, page_aff))
             seen_slugs.add(page["slug"])
 
     all_offer_ids = list(cfg["offer_ids"])
