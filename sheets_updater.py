@@ -11,7 +11,7 @@ from googleapiclient.discovery import build
 load_dotenv()
 
 REDTRACK_API_KEY = os.getenv("REDTRACK_API_KEY")
-SPREADSHEET_ID = "1QHpah9TOF40mFetcCdUHCG8dUleQTkSR9yK7WpyzlAA"
+SPREADSHEET_ID = "1yaw3i3lUdBi5IdLARrjOufUNsMsuxWbODeXh0634z4M"
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 CREDENTIALS_FILE = os.path.join(os.path.dirname(__file__), "credentials.json")
 TOKEN_FILE = os.path.join(os.path.dirname(__file__), "token.json")
@@ -47,6 +47,51 @@ SHEET_CONFIG = {
         "campaign_pattern": ["ROCKBOOST", "ROCK BOOST"],
         "currency_format": "$#,##0.00",
     },
+    "Steel Power": {
+        "campaign_pattern": ["STEEL POWER", "STEELPOWER"],
+        "currency_format": "$#,##0.00",
+    },
+    "HorseWood": {
+        "campaign_pattern": ["JELLYFIL", "HORSEWOOD", "WORSEWOOD"],
+        "name_col": "CRIATIVOS",
+        "currency_format": "$#,##0.00",
+    },
+    "JellyFill": {
+        "campaign_pattern": ["JELLYFIL", "HORSEWOOD", "WORSEWOOD"],
+        "name_col": "CRIATIVOS",
+        "currency_format": "$#,##0.00",
+    },
+    "Max Force [Blackline]": {
+        "campaign_pattern": "MAXFORCE",
+        "name_col": "CRIATIVOS",
+        "currency_format": "$#,##0.00",
+    },
+    "Gelatin Meister 1.0": {
+        "campaign_pattern": ["GELATIN MEISTER", "GELATINMEISTER"],
+        "name_col": "CRIATIVOS",
+        "currency_format": "$#,##0.00",
+    },
+    "BrainMary": {
+        "campaign_pattern": "BRAINMARY",
+        "name_col": "CRIATIVOS",
+        "currency_format": "$#,##0.00",
+        # RC 1.x BM-YT-TS publicados com erro de nome (R em vez de RC)
+        "name_mapping": {
+            "R 1.1 BM-YT-TS": "RC 1.1 BM-YT-TS",
+            "R 1.2 BM-YT-TS": "RC 1.2 BM-YT-TS",
+            "R 1.3 BM-YT-TS": "RC 1.3 BM-YT-TS",
+            "R 1.4 BM-YT-TS": "RC 1.4 BM-YT-TS",
+            "R 1.5 BM-YT-TS": "RC 1.5 BM-YT-TS",
+        },
+        # Redtrack usa "EM 5.15BM-YT-PR" para dois vídeos distintos —
+        # o adgroup revela qual criativo é de verdade.
+        "adgroup_name_mapping": {
+            "EM 5.15BM-YT-PR": {
+                "04": "EM 5.1 BM-YT-PR",
+                "05": "EM 5.2 BM-YT-PR",
+            },
+        },
+    },
 }
 
 
@@ -65,67 +110,87 @@ def get_google_credentials():
     return creds
 
 
-def _fetch_week(date_from: str, date_to: str, campaign_pattern: str = None, network_id: str = None) -> list:
-    """Busca criativos de uma semana. Suporta filtro por campanha e offer source."""
+def _fetch_week(date_from: str, date_to: str, campaign_pattern: str = None, network_id: str = None, include_adgroup: bool = False) -> list:
+    """Busca criativos de uma semana. Faz dois passes (custo + conversões) para não perder
+    criativos baratos que tiveram vendas mas ficaram fora do top-1000 por custo."""
     use_campaign_group = bool(campaign_pattern)
-    group = "rt_campaign,rt_ad" if use_campaign_group else "rt_ad"
+    if include_adgroup:
+        group = "rt_campaign,rt_adgroup,rt_ad" if use_campaign_group else "rt_adgroup,rt_ad"
+    else:
+        group = "rt_campaign,rt_ad" if use_campaign_group else "rt_ad"
 
-    params = {
-        "api_key": REDTRACK_API_KEY,
-        "date_from": date_from,
-        "date_to": date_to,
-        "group": group,
-        "sortby": "cost",
-        "direction": "desc",
-    }
-    if network_id:
-        params["network_id"] = network_id
-
-    for attempt in range(3):
-        try:
-            response = requests.get(
-                "https://api.redtrack.io/report",
-                params=params,
-                timeout=60,
-            )
-            if response.status_code == 429:
-                wait = 10 * (attempt + 1)
-                print(f"  Rate limit, aguardando {wait}s...")
+    def _request(sortby: str) -> list:
+        params = {
+            "api_key": REDTRACK_API_KEY,
+            "date_from": date_from,
+            "date_to": date_to,
+            "group": group,
+            "sortby": sortby,
+            "direction": "desc",
+        }
+        if network_id:
+            params["network_id"] = network_id
+        for attempt in range(3):
+            try:
+                response = requests.get(
+                    "https://api.redtrack.io/report",
+                    params=params,
+                    timeout=60,
+                )
+                if response.status_code == 429:
+                    wait = 10 * (attempt + 1)
+                    print(f"  Rate limit, aguardando {wait}s...")
+                    time.sleep(wait)
+                    continue
+                response.raise_for_status()
+                data = response.json()
+                return data if isinstance(data, list) else data.get("items", [])
+            except requests.exceptions.Timeout:
+                wait = 15 * (attempt + 1)
+                print(f"  Timeout {date_from}~{date_to}, aguardando {wait}s...")
                 time.sleep(wait)
-                continue
-            response.raise_for_status()
-            data = response.json()
-            items = data if isinstance(data, list) else data.get("items", [])
+        return []
 
-            if campaign_pattern:
-                patterns = list(campaign_pattern) if isinstance(campaign_pattern, (list, tuple)) else [campaign_pattern]
-                items = [
-                    i for i in items
-                    if any(p.upper() in str(i.get("rt_campaign", "")).upper() for p in patterns)
-                ]
+    # Passe 1: top-1000 por custo
+    items_cost = _request("cost")
+    # Passe 2: top-1000 por conversões (captura criativos baratos com vendas)
+    time.sleep(0.5)
+    items_conv = _request("convtype1")
 
-            return items
-        except requests.exceptions.Timeout:
-            wait = 15 * (attempt + 1)
-            print(f"  Timeout {date_from}~{date_to}, aguardando {wait}s...")
-            time.sleep(wait)
-    return []
+    # Merge: usar chave (rt_campaign, rt_ad) para deduplicar
+    seen = {}
+    for item in items_cost:
+        key = (item.get("rt_campaign", ""), item.get("rt_ad", ""))
+        seen[key] = item
+    for item in items_conv:
+        key = (item.get("rt_campaign", ""), item.get("rt_ad", ""))
+        if key not in seen:
+            seen[key] = item
+
+    items = list(seen.values())
+
+    if campaign_pattern:
+        patterns = list(campaign_pattern) if isinstance(campaign_pattern, (list, tuple)) else [campaign_pattern]
+        items = [
+            i for i in items
+            if any(p.upper() in str(i.get("rt_campaign", "")).upper() for p in patterns)
+        ]
+
+    return items
 
 
-def fetch_all_creatives(date_from: str, date_to: str, campaign_pattern: str = None, network_id: str = None) -> dict:
-    """Retorna dict {rt_ad_name: metrics} agregado por splits semanais."""
+def _sweep(date_from: str, date_to: str, campaign_pattern, network_id, include_adgroup: bool, silent: bool = False) -> dict:
+    """Busca semanal e agrega em {name: metrics}. Não aplica mapeamento."""
+    agg = {}
     start = date.fromisoformat(date_from)
-    end = date.fromisoformat(date_to)
-    aggregated = {}
-
+    end   = date.fromisoformat(date_to)
     current = start
     while current <= end:
         week_end = min(current + timedelta(days=6), end)
-        wfrom = current.isoformat()
-        wto = week_end.isoformat()
-        print(f"  Semana {wfrom} → {wto}...")
-        items = _fetch_week(wfrom, wto, campaign_pattern=campaign_pattern, network_id=network_id)
-
+        wfrom, wto = current.isoformat(), week_end.isoformat()
+        if not silent:
+            print(f"  Semana {wfrom} → {wto}...")
+        items = _fetch_week(wfrom, wto, campaign_pattern=campaign_pattern, network_id=network_id, include_adgroup=include_adgroup)
         for item in items:
             name = str(item.get("rt_ad", "")).strip()
             if not name:
@@ -133,22 +198,70 @@ def fetch_all_creatives(date_from: str, date_to: str, campaign_pattern: str = No
             name = name.replace(".mp4", "").replace(".MP4", "").rstrip(".").strip()
             if not name:
                 continue
-            if name not in aggregated:
-                aggregated[name] = {
-                    "cost": 0.0,
-                    "total_revenue": 0.0,
-                    "convtype1": 0,
-                    "convtype2": 0,
-                    "_clicks": 0,
-                }
-            aggregated[name]["cost"] += float(item.get("cost", 0))
-            aggregated[name]["total_revenue"] += float(item.get("total_revenue", 0))
-            aggregated[name]["convtype1"] += int(item.get("convtype1", 0))
-            aggregated[name]["convtype2"] += int(item.get("convtype2", 0))
-            aggregated[name]["_clicks"] += int(item.get("ok", 0))
-
+            if name not in agg:
+                agg[name] = {"cost": 0.0, "total_revenue": 0.0, "convtype1": 0, "convtype2": 0, "_clicks": 0}
+            agg[name]["cost"]          += float(item.get("cost", 0))
+            agg[name]["total_revenue"] += float(item.get("total_revenue", 0))
+            agg[name]["convtype1"]     += int(item.get("convtype1", 0))
+            agg[name]["convtype2"]     += int(item.get("convtype2", 0))
+            agg[name]["_clicks"]       += int(item.get("ok", 0))
         current = week_end + timedelta(days=1)
         time.sleep(1)
+    return agg
+
+
+def fetch_all_creatives(date_from: str, date_to: str, campaign_pattern: str = None, network_id: str = None, adgroup_name_mapping: dict = None) -> dict:
+    """Retorna dict {rt_ad_name: metrics} agregado por splits semanais.
+
+    Quando há adgroup_name_mapping usa dois passes:
+      1. Busca normal (sem adgroup) — histórico completo sem risco do limite de 100 itens.
+      2. Busca corretiva (com adgroup) — mesmo período, processa APENAS os criativos com
+         nome ambíguo, remove os nomes errados e adiciona os corretos.
+    """
+    # Passe 1 — busca normal
+    aggregated = _sweep(date_from, date_to, campaign_pattern, network_id, include_adgroup=False)
+
+    # Passe 2 — corrige criativos com nome ambíguo
+    if adgroup_name_mapping:
+        wrong_names = set(adgroup_name_mapping.keys())
+        for wrong in wrong_names:
+            aggregated.pop(wrong, None)
+
+        # Busca com adgroup, mas agrega APENAS os criativos com nome errado
+        corrections: dict = {}
+        start = date.fromisoformat(date_from)
+        end   = date.fromisoformat(date_to)
+        current = start
+        while current <= end:
+            week_end = min(current + timedelta(days=6), end)
+            items = _fetch_week(current.isoformat(), week_end.isoformat(),
+                                campaign_pattern=campaign_pattern, network_id=network_id,
+                                include_adgroup=True)
+            for item in items:
+                rt_ad = str(item.get("rt_ad", "")).strip()
+                rt_ad = rt_ad.replace(".mp4", "").replace(".MP4", "").rstrip(".").strip()
+                if rt_ad not in wrong_names:
+                    continue
+                adgroup = str(item.get("rt_adgroup", "")).strip()
+                correct = adgroup_name_mapping[rt_ad].get(adgroup)
+                if not correct:
+                    continue
+                if correct not in corrections:
+                    corrections[correct] = {"cost": 0.0, "total_revenue": 0.0, "convtype1": 0, "convtype2": 0, "_clicks": 0}
+                corrections[correct]["cost"]          += float(item.get("cost", 0))
+                corrections[correct]["total_revenue"] += float(item.get("total_revenue", 0))
+                corrections[correct]["convtype1"]     += int(item.get("convtype1", 0))
+                corrections[correct]["convtype2"]     += int(item.get("convtype2", 0))
+                corrections[correct]["_clicks"]       += int(item.get("ok", 0))
+            current = week_end + timedelta(days=1)
+            time.sleep(1)
+
+        for name, data in corrections.items():
+            if name not in aggregated:
+                aggregated[name] = data
+            else:
+                for k in ("cost", "total_revenue", "convtype1", "convtype2", "_clicks"):
+                    aggregated[name][k] += data[k]
 
     for name, data in aggregated.items():
         clicks = data.pop("_clicks", 0)
@@ -357,11 +470,18 @@ def run(date_from: str = "2026-01-01", date_to: str = None, sheet_filter: str = 
             filter_desc.append(f"offer_source={network_id[:8]}...")
         desc = f" [{', '.join(filter_desc)}]" if filter_desc else ""
 
+        # Mescla adgroup_name_mapping de todas as abas do grupo
+        merged_adgroup_mapping = {}
+        for sn in sheet_names:
+            m = SHEET_CONFIG.get(sn, {}).get("adgroup_name_mapping", {})
+            merged_adgroup_mapping.update(m)
+
         print(f"\n  Buscando criativos do Redtrack ({date_from} → {date_to}){desc}...")
         redtrack_data = fetch_all_creatives(
             date_from, date_to,
             campaign_pattern=campaign_pattern,
             network_id=network_id,
+            adgroup_name_mapping=merged_adgroup_mapping or None,
         )
 
         for sheet_name in sheet_names:
