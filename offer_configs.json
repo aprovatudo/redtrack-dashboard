@@ -494,20 +494,16 @@
     "template_domain": "fg.improveyourhealthstarting.lat",
     "template_campaign": "6a987622de68b493879388a7",
     "template_vslmeister_player": "6a9823a712fa2d173935eba2",
-    "template_meisterlead3_player": "6a9823a7c7b98890d7440481",
     "vturb_folder_id": "6a98238af609532b25e053de",
     "vturb_templates": {
-      "vslmeister": "6a9823a712fa2d173935eba2",
-      "meisterlead3": "6a9823a7c7b98890d7440481"
+      "vslmeister": "6a9823a712fa2d173935eba2"
     },
     "vturb_video_names": {
-      "vslmeister": "PAGE 1 - VSL Gelatin Meister [FR] [EDS] — pitch 44m22s.mp4 - {lc}",
-      "meisterlead3": "PAGE 2 - LEAD3V2 [nutra] VSL Gelatin Meister [FR] EVH [EDS] — pitch 45m38s.mp4 - {lc}"
+      "vslmeister": "PAGE 1 - VSL Gelatin Meister [FR] [EDS] — pitch 44m22s.mp4 - {lc}"
     },
     "pages": {
       "premeister": ["domain", "campaign"],
-      "vslmeister": ["domain", "campaign", "vslmeister"],
-      "meisterlead3": ["domain", "campaign", "meisterlead3"]
+      "vslmeister": ["domain", "campaign", "vslmeister"]
     },
     "redtrack": {
       "aff_param": "aff=health-club",
@@ -533,12 +529,6 @@
           "label": "Gelatin Meister 1.0 | VSL1 Lead 1",
           "role": "lander"
         },
-        {
-          "slug": "meisterlead3",
-          "type": "l",
-          "label": "Gelatin Meister 1.0 | VSL1 Lead 3V2",
-          "role": "lander"
-        }
       ]
     }
   }
