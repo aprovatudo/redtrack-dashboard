@@ -199,15 +199,23 @@ def _ensure_dir(sftp, path: str):
 def _build_replacements(dominio: str, campaign_id: str, player_ids: dict,
                         page: str, config: dict) -> dict:
     page_keys = config.get("pages", _DEFAULT_PAGE_REPLACEMENTS).get(page, [])
+    # Template domain pode ter prefixo "fg." — também substituir a variante sem prefixo
+    # para acertar cookie domain (ex: ".ultimatewellnessnetwork.online")
+    tpl_domain = config["template_domain"]
+    tpl_domain_bare = tpl_domain.removeprefix("fg.")
     base = {
-        "domain":   (config["template_domain"],   f"fg.{dominio}"),
+        "domain":   (tpl_domain,                  f"fg.{dominio}"),
         "campaign": (config["template_campaign"],  campaign_id),
     }
     for slug, new_id in player_ids.items():
         tpl_key = f"template_{slug}_player"
         if tpl_key in config:
             base[slug] = (config[tpl_key], new_id)
-    return {base[k][0]: base[k][1] for k in page_keys if k in base and base[k][1]}
+    result = {base[k][0]: base[k][1] for k in page_keys if k in base and base[k][1]}
+    # Sempre substituir o domínio sem "fg." (cookie domain), se "domain" foi incluído
+    if "domain" in page_keys and tpl_domain_bare != tpl_domain:
+        result[tpl_domain_bare] = dominio
+    return result
 
 
 def _get_variations(oferta: str, page: str) -> dict:
