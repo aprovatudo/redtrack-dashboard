@@ -551,10 +551,10 @@
       "micro-pf": ["domain", "campaign", "micropf"]
     },
     "redtrack": {
-      "lander_title": "{lc} | {label} | Lander | YouTube | SODAPEAK | BuyGoods | WL | SODA | {domain}",
-      "prelander_title": "{lc} | Pre-Lander | Youtube | BuyGoods | SODAPEAK | YT | PRESELL | {domain}",
-      "stream_title": "{lc} | Youtube | BuyGoods | SODAPEAK | PRE -> VSL -> DTC | {domain}",
-      "campaign_title": "{lc} | {gestor} | Youtube - {conta} | BuyGoods | SODAPEAK | YT | VSL | {domain}",
+      "lander_title": "{lc} | Baking Soda 1.0 | {label} | Lander | YouTube | Sodapeak | PagAmerican | ED | GEX | {domain}",
+      "prelander_title": "{lc} | Pre-Lander | Youtube | PagAmerican | SodaPeak | YT | PRESELL | {domain}",
+      "stream_title": "{lc} | Youtube | PagAmerican | SodaPeak | PRE -> VSL -> DTC | {domain}",
+      "campaign_title": "{lc} | {gestor} | Youtube - {conta} | PagAmerican | SodaPeak | YT | VSL | {domain}",
       "offer_ids": [
         "6aa81f0e5b61d85a3a5a2545",
         "6aa81f0e227670fd1aabc923",
@@ -564,13 +564,13 @@
         {
           "slug": "vslspk-ld1",
           "type": "l",
-          "label": "Horse Soda | VSL Lead 1",
+          "label": "VSL GEX LEAD 1",
           "role": "lander"
         },
         {
           "slug": "micro-pf",
           "type": "l",
-          "label": "Horse Soda | Micro Lead",
+          "label": "VSL GEX Microlead 1.2 PF",
           "role": "lander"
         }
       ]
