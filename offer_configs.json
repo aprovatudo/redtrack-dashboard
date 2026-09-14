@@ -531,5 +531,40 @@
         }
       ]
     }
+  },
+  "SODAPEAK": {
+    "template_domain": "fg.ultimatewellnessnetwork.online",
+    "template_campaign": "6aa82f4de10d19ccb3bfb219",
+    "template_vslspkld1_player": "6a91aba27ea7276e7b94230f",
+    "template_micropf_player": "6aa8323f644dfaac18643de1",
+    "vturb_templates": {
+      "vslspkld1": "6a91aba27ea7276e7b94230f",
+      "micropf": "6aa8323f644dfaac18643de1"
+    },
+    "pages": {
+      "vslspk-ld1": ["domain", "campaign", "vslspkld1"],
+      "micro-pf": ["domain", "campaign", "micropf"]
+    },
+    "redtrack": {
+      "lander_title": "{lc} | {label} | Lander | YouTube | SODAPEAK | BuyGoods | WL | SODA | {domain}",
+      "prelander_title": "{lc} | Pre-Lander | Youtube | BuyGoods | SODAPEAK | YT | PRESELL | {domain}",
+      "stream_title": "{lc} | Youtube | BuyGoods | SODAPEAK | PRE -> VSL -> DTC | {domain}",
+      "campaign_title": "{lc} | {gestor} | Youtube - {conta} | BuyGoods | SODAPEAK | YT | VSL | {domain}",
+      "offer_ids": [],
+      "pages": [
+        {
+          "slug": "vslspk-ld1",
+          "type": "l",
+          "label": "Horse Soda | VSL Lead 1",
+          "role": "lander"
+        },
+        {
+          "slug": "micro-pf",
+          "type": "l",
+          "label": "Horse Soda | Micro Lead",
+          "role": "lander"
+        }
+      ]
+    }
   }
 }
