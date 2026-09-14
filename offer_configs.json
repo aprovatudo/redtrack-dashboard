@@ -555,7 +555,11 @@
       "prelander_title": "{lc} | Pre-Lander | Youtube | BuyGoods | SODAPEAK | YT | PRESELL | {domain}",
       "stream_title": "{lc} | Youtube | BuyGoods | SODAPEAK | PRE -> VSL -> DTC | {domain}",
       "campaign_title": "{lc} | {gestor} | Youtube - {conta} | BuyGoods | SODAPEAK | YT | VSL | {domain}",
-      "offer_ids": [],
+      "offer_ids": [
+        "6aa81f0e5b61d85a3a5a2545",
+        "6aa81f0e227670fd1aabc923",
+        "6aa81f0fe10d19ccb3b73226"
+      ],
       "pages": [
         {
           "slug": "vslspk-ld1",
