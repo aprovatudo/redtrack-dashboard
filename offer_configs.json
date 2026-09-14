@@ -547,7 +547,6 @@
       "micropf": "PAGE 3 - Baking Soda 1.0 (ED) _ Lead 1.2 (PF) - Pitch em 58_42.mp4 - {lc}"
     },
     "pages": {
-      "prepeak": ["domain", "campaign"],
       "vslspk-ld1": ["domain", "campaign", "vslspkld1"],
       "micro-pf": ["domain", "campaign", "micropf"]
     },
@@ -567,7 +566,8 @@
           "slug": "prepeak",
           "type": "p",
           "label": "PRESELL",
-          "role": "prelander"
+          "role": "prelander",
+          "fixed_url": "https://ultimatewellnessnetwork.online/prepeak/?aff=QsbPGpxf"
         },
         {
           "slug": "vslspk-ld1",

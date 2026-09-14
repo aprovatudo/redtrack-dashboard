@@ -361,7 +361,9 @@ def setup(lc_code: str, account_number: str, base_domain: str, oferta: str = "Br
         else:
             t = page_cfg["lander_title"].format(lc=lc_code, label=label, domain=tracking_domain)
 
-        if aff_param_override:
+        if page.get("fixed_url"):
+            url = page["fixed_url"]
+        elif aff_param_override:
             url = f"https://{base_domain}/{slug}?{aff_param_override}"
         elif page_aff_id:
             url = f"https://{base_domain}/{slug}?aff_id={page_aff_id}"
