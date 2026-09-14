@@ -547,10 +547,12 @@
       "micropf": "PAGE 3 - Baking Soda 1.0 (ED) _ Lead 1.2 (PF) - Pitch em 58_42.mp4 - {lc}"
     },
     "pages": {
+      "prepeak": ["domain", "campaign"],
       "vslspk-ld1": ["domain", "campaign", "vslspkld1"],
       "micro-pf": ["domain", "campaign", "micropf"]
     },
     "redtrack": {
+      "aff_param": "aff=QsbPGpxf",
       "lander_title": "{lc} | Baking Soda 1.0 | {label} | Lander | YouTube | Sodapeak | PagAmerican | ED | GEX | {domain}",
       "prelander_title": "{lc} | Pre-Lander | Youtube | PagAmerican | SodaPeak | YT | PRESELL | {domain}",
       "stream_title": "{lc} | Youtube | PagAmerican | SodaPeak | PRE -> VSL -> DTC | {domain}",
@@ -561,6 +563,12 @@
         "6aa81f0fe10d19ccb3b73226"
       ],
       "pages": [
+        {
+          "slug": "prepeak",
+          "type": "p",
+          "label": "PRESELL",
+          "role": "prelander"
+        },
         {
           "slug": "vslspk-ld1",
           "type": "l",
