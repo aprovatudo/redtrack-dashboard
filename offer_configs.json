@@ -537,9 +537,14 @@
     "template_campaign": "6aa82f4de10d19ccb3bfb219",
     "template_vslspkld1_player": "6a91aba27ea7276e7b94230f",
     "template_micropf_player": "6aa8323f644dfaac18643de1",
+    "vturb_folder_id": "6aa831e1a65c3bf276206469",
     "vturb_templates": {
       "vslspkld1": "6a91aba27ea7276e7b94230f",
       "micropf": "6aa8323f644dfaac18643de1"
+    },
+    "vturb_video_names": {
+      "vslspkld1": "PAGE 1 - LEAD 1 [$49] [6 BOTTLES] [Pitch 56.46].mp4 - {lc}",
+      "micropf": "PAGE 3 - Baking Soda 1.0 (ED) _ Lead 1.2 (PF) - Pitch em 58_42.mp4 - {lc}"
     },
     "pages": {
       "vslspk-ld1": ["domain", "campaign", "vslspkld1"],
