@@ -535,11 +535,11 @@
   "SODAPEAK": {
     "template_domain": "fg.ultimatewellnessnetwork.online",
     "template_campaign": "6aa82f4de10d19ccb3bfb219",
-    "template_vslspkld1_player": "6a91aba27ea7276e7b94230f",
+    "template_vslspkld1_player": "6aa8323f644dfaac18643dcd",
     "template_micropf_player": "6aa8323f644dfaac18643de1",
     "vturb_folder_id": "6aa831e1a65c3bf276206469",
     "vturb_templates": {
-      "vslspkld1": "6a91aba27ea7276e7b94230f",
+      "vslspkld1": "6aa8323f644dfaac18643dcd",
       "micropf": "6aa8323f644dfaac18643de1"
     },
     "vturb_video_names": {
