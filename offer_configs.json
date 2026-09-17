@@ -595,5 +595,54 @@
         }
       ]
     }
+  },
+  "SODATIDE": {
+    "template_domain": "fg.yourcompletehealthguide.online",
+    "template_campaign": "6aa990bbbc7fb8ca94c36fed",
+    "template_vslsdtide_player": "6aa992902bb80ca6eb84faf5",
+    "vturb_folder_id": "d7c7530f2a303e725",
+    "vturb_templates": {
+      "vslsdtide": "6aa992902bb80ca6eb84faf5"
+    },
+    "vturb_video_names": {
+      "vslsdtide": "PAGE 12 CORRIGIDO - LEAD 1 BAKING SODA 3.0 - SODATIDE - META COM O NOV.mp4 - {lc}"
+    },
+    "pages": {
+      "pretide": ["domain", "campaign"],
+      "vslsdtide": ["domain", "campaign", "vslsdtide"]
+    },
+    "redtrack": {
+      "aff_param": "aff_id=71710",
+      "lander_title": "{lc} | Baking Soda 3.0 | {label} | Lander | YouTube | Sodatide | PagAmerican | ED | GEX | {domain}",
+      "prelander_title": "{lc} | Pre-Lander | Youtube | PagAmerican | SodaTide | YT | PRESELL | {domain}",
+      "stream_title": "{lc} | Youtube | PagAmerican | SodaTide | PRE -> VSL -> DTC | {domain}",
+      "campaign_title": "{lc} | {gestor} | Youtube - {conta} | PagAmerican | SodaTide | YT | VSL | {domain}",
+      "offer_ids": [
+        "6aa98f0a7d897da5b21ea8f5",
+        "6aa98f0b3f056095cbb766e9",
+        "6aa98f0b60cd95353bb24230"
+      ],
+      "gestor_offer_ids": {
+        "GH": [
+          "6aa98f0a7d897da5b21ea8f5",
+          "6aa98f0b3f056095cbb766e9",
+          "6aa98f0b60cd95353bb24230"
+        ]
+      },
+      "pages": [
+        {
+          "slug": "pretide",
+          "type": "p",
+          "label": "PRESELL",
+          "role": "prelander"
+        },
+        {
+          "slug": "vslsdtide",
+          "type": "l",
+          "label": "VSL GEX LEAD 1",
+          "role": "lander"
+        }
+      ]
+    }
   }
 }
