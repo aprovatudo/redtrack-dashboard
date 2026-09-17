@@ -553,7 +553,7 @@
     },
     "redtrack": {
       "aff_param": "aff=QsbPGpxf",
-      "lander_title": "{lc} | Baking Soda 1.0 | {label} | Lander | YouTube | Sodapeak | PagAmerican | ED | {gestor} | {domain}",
+      "lander_title": "{lc} | Baking Soda 1.0 | {label} | Lander | YouTube | Sodapeak | PagAmerican | ED | GEX | {domain}",
       "prelander_title": "{lc} | Pre-Lander | Youtube | PagAmerican | SodaPeak | YT | PRESELL | {domain}",
       "stream_title": "{lc} | Youtube | PagAmerican | SodaPeak | PRE -> VSL -> DTC | {domain}",
       "campaign_title": "{lc} | {gestor} | Youtube - {conta} | PagAmerican | SodaPeak | YT | VSL | {domain}",
@@ -584,13 +584,13 @@
         {
           "slug": "vslspk-ld1",
           "type": "l",
-          "label": "VSL {gestor} LEAD 1",
+          "label": "VSL GEX LEAD 1",
           "role": "lander"
         },
         {
           "slug": "micro-pf",
           "type": "l",
-          "label": "VSL {gestor} Microlead 1.2 PF",
+          "label": "VSL GEX Microlead 1.2 PF",
           "role": "lander"
         }
       ]
