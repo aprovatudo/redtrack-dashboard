@@ -375,6 +375,13 @@ def run_setup_lc(lc: str, dominio: str = None, oferta: str = "BrainMary") -> dic
 
         if dominio and not use_http and page:
             add_security_domain(page, ctx, token, None, dominio)
+        elif dominio and use_http:
+            print(
+                f"[vturb] ⚠️  ATENÇÃO: domínio '{dominio}' NÃO foi adicionado à segurança do Vturb.\n"
+                f"[vturb]    O webhook local não estava disponível e o login HTTP não permite Playwright.\n"
+                f"[vturb]    Adicione manualmente: app.vturb.com → Segurança → Domínios → '{dominio}'",
+                flush=True,
+            )
 
         return result
     finally:
