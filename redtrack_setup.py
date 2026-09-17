@@ -350,16 +350,17 @@ def setup(lc_code: str, account_number: str, base_domain: str, oferta: str = "Br
 
     for i, (page, page_cfg, page_aff_id) in enumerate(all_page_entries, start=2):
         slug  = page["slug"]
-        label = page["label"]
+        label = page["label"].format(gestor=cfg.get("_gestor", ""))
         ptype = page["type"]
         role  = page["role"]
 
+        _fmt = dict(lc=lc_code, label=label, domain=tracking_domain, gestor=cfg.get("_gestor", ""))
         if "title_override" in page:
-            t = page["title_override"].format(lc=lc_code, label=label, domain=tracking_domain)
+            t = page["title_override"].format(**_fmt)
         elif role == "prelander":
-            t = page_cfg["prelander_title"].format(lc=lc_code, label=label, domain=tracking_domain)
+            t = page_cfg["prelander_title"].format(**_fmt)
         else:
-            t = page_cfg["lander_title"].format(lc=lc_code, label=label, domain=tracking_domain)
+            t = page_cfg["lander_title"].format(**_fmt)
 
         if aff_param_override:
             url = f"https://{base_domain}/{slug}?{aff_param_override}"

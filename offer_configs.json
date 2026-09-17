@@ -553,7 +553,7 @@
     },
     "redtrack": {
       "aff_param": "aff=QsbPGpxf",
-      "lander_title": "{lc} | Baking Soda 1.0 | {label} | Lander | YouTube | Sodapeak | PagAmerican | ED | GEX | {domain}",
+      "lander_title": "{lc} | Baking Soda 1.0 | {label} | Lander | YouTube | Sodapeak | PagAmerican | ED | {gestor} | {domain}",
       "prelander_title": "{lc} | Pre-Lander | Youtube | PagAmerican | SodaPeak | YT | PRESELL | {domain}",
       "stream_title": "{lc} | Youtube | PagAmerican | SodaPeak | PRE -> VSL -> DTC | {domain}",
       "campaign_title": "{lc} | {gestor} | Youtube - {conta} | PagAmerican | SodaPeak | YT | VSL | {domain}",
@@ -562,6 +562,18 @@
         "6aa81f0e227670fd1aabc923",
         "6aa81f0e5b61d85a3a5a2545"
       ],
+      "gestor_offer_ids": {
+        "GEX": [
+          "6aa81f0fe10d19ccb3b73226",
+          "6aa81f0e227670fd1aabc923",
+          "6aa81f0e5b61d85a3a5a2545"
+        ],
+        "AN": [
+          "6aac004f641ecc988bc2814b",
+          "6aac004f641ecc988bc28150",
+          "6aac0050aaf57ea660cedc95"
+        ]
+      },
       "pages": [
         {
           "slug": "prepeak",
@@ -572,65 +584,13 @@
         {
           "slug": "vslspk-ld1",
           "type": "l",
-          "label": "VSL GEX LEAD 1",
+          "label": "VSL {gestor} LEAD 1",
           "role": "lander"
         },
         {
           "slug": "micro-pf",
           "type": "l",
-          "label": "VSL GEX Microlead 1.2 PF",
-          "role": "lander"
-        }
-      ]
-    }
-  },
-  "SODAPEAK_AN": {
-    "template_domain": "fg.ultimatewellnessnetwork.online",
-    "template_campaign": "6aa82f4de10d19ccb3bfb219",
-    "template_vslspkld1_player": "6aa8323f644dfaac18643dcd",
-    "template_micropf_player": "6aa8323f644dfaac18643de1",
-    "vturb_folder_id": "6aa831e1a65c3bf276206469",
-    "vturb_templates": {
-      "vslspkld1": "6aa8323f644dfaac18643dcd",
-      "micropf": "6aa8323f644dfaac18643de1"
-    },
-    "vturb_video_names": {
-      "vslspkld1": "PAGE 1 - LEAD 1 [$49] [6 BOTTLES] [Pitch 56.46].mp4 - {lc}",
-      "micropf": "PAGE 3 - Baking Soda 1.0 (ED) _ Lead 1.2 (PF) - Pitch em 58_42.mp4 - {lc}"
-    },
-    "pages": {
-      "prepeak": ["domain", "campaign"],
-      "vslspk-ld1": ["domain", "campaign", "vslspkld1"],
-      "micro-pf": ["domain", "campaign", "micropf"]
-    },
-    "redtrack": {
-      "aff_param": "aff=QsbPGpxf",
-      "lander_title": "{lc} | Baking Soda 1.0 | {label} | Lander | YouTube | Sodapeak | PagAmerican | ED | AN | {domain}",
-      "prelander_title": "{lc} | Pre-Lander | Youtube | PagAmerican | SodaPeak | YT | PRESELL | {domain}",
-      "stream_title": "{lc} | Youtube | PagAmerican | SodaPeak | PRE -> VSL -> DTC | {domain}",
-      "campaign_title": "{lc} | {gestor} | Youtube - {conta} | PagAmerican | SodaPeak | YT | VSL | {domain}",
-      "offer_ids": [
-        "6aac004f641ecc988bc2814b",
-        "6aac004f641ecc988bc28150",
-        "6aac0050aaf57ea660cedc95"
-      ],
-      "pages": [
-        {
-          "slug": "prepeak",
-          "type": "p",
-          "label": "PRESELL",
-          "role": "prelander"
-        },
-        {
-          "slug": "vslspk-ld1",
-          "type": "l",
-          "label": "VSL AN LEAD 1",
-          "role": "lander"
-        },
-        {
-          "slug": "micro-pf",
-          "type": "l",
-          "label": "VSL AN Microlead 1.2 PF",
+          "label": "VSL {gestor} Microlead 1.2 PF",
           "role": "lander"
         }
       ]
