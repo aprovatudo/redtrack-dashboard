@@ -613,10 +613,10 @@
     },
     "redtrack": {
       "aff_param": "aff_id=71710",
-      "lander_title": "{lc} | Baking Soda 3.0 | {label} | Lander | YouTube | Sodatide | PagAmerican | ED | GEX | {domain}",
-      "prelander_title": "{lc} | Pre-Lander | Youtube | PagAmerican | SodaTide | YT | PRESELL | {domain}",
-      "stream_title": "{lc} | Youtube | PagAmerican | SodaTide | PRE -> VSL -> DTC | {domain}",
-      "campaign_title": "{lc} | {gestor} | Youtube - {conta} | PagAmerican | SodaTide | YT | VSL | {domain}",
+      "lander_title": "{lc} | Baking Soda 2.0 | {label} | Lander | YouTube | Sodatide | BuyGoods | WL | GEX | {domain}",
+      "prelander_title": "{lc} | Pre-Lander | Youtube | BuyGoods | SodaTide | YT | PRESELL | {domain}",
+      "stream_title": "{lc} | Youtube | BuyGoods | SodaTide | PRE -> VSL -> DTC | {domain}",
+      "campaign_title": "{lc} | {gestor} | Youtube - {conta} | BuyGoods | SodaTide | YT | VSL | {domain}",
       "offer_ids": [
         "6aa98f0a7d897da5b21ea8f5",
         "6aa98f0b3f056095cbb766e9",
@@ -639,7 +639,7 @@
         {
           "slug": "vslsdtide",
           "type": "l",
-          "label": "VSL GEX LEAD 1",
+          "label": "VSL BAKING SODA 3.0 PITCH NOVO",
           "role": "lander"
         }
       ]
