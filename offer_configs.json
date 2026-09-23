@@ -615,7 +615,7 @@
     "redtrack": {
       "aff_param": "aff_id=71710",
       "lander_title": "{lc} | Baking Soda 2.0 | {label} | Lander | YouTube | Sodatide | BuyGoods | WL | GEX | {domain}",
-      "prelander_title": "{lc} | Pre-Lander | Youtube | BuyGoods | SodaTide | YT | PRESELL | {domain}",
+      "prelander_title": "{lc} | Pre-Lander | Youtube | BuyGoods | SodaTide | YT | {label} | {domain}",
       "stream_title": "{lc} | Youtube | BuyGoods | SodaTide | PRE -> VSL -> DTC | {domain}",
       "campaign_title": "{lc} | {gestor} | Youtube - {conta} | BuyGoods | SodaTide | YT | VSL | {domain}",
       "offer_ids": [

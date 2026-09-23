@@ -267,11 +267,24 @@ def add_security_domain(page, context, jwt_token, player_id: str, domain: str):
             print(f"[vturb]   [AVISO] Campo de domínio não encontrado após clicar Adicionar.", flush=True)
             return
 
-        domain_input.fill(domain)
-        page.wait_for_timeout(300)
+        domain_input.click()
+        domain_input.fill("")
+        page.wait_for_timeout(100)
+        domain_input.type(domain, delay=40)
+        page.wait_for_timeout(500)
+
+        # Esperar o botão habilitar (React valida em tempo real; se continuar disabled, domínio já existe)
+        btn = page.get_by_role("button", name="Adicionar", exact=True)
+        try:
+            btn.wait_for(state="enabled", timeout=4000)
+        except Exception:
+            # Botão ainda desativado → domínio já está cadastrado (validação de duplicata)
+            print(f"[vturb]   ✓ Domínio '{domain}' já cadastrado (Vturb bloqueou duplicata).", flush=True)
+            page.keyboard.press("Escape")
+            return
 
         # Confirmar no modal clicando no botão "Adicionar" (não "Adicionar outro")
-        page.get_by_role("button", name="Adicionar", exact=True).click()
+        btn.click()
         page.wait_for_timeout(2000)
 
         if domain in page.inner_text("body"):

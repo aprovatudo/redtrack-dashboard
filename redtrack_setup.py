@@ -197,7 +197,7 @@ def create_landing(title: str, url: str, page_type: str, domain_id: str, dry_run
 def create_funnel_template(
     lc_code: str,
     base_domain: str,
-    prelander_id: str,
+    prelander_ids: list,
     lander_ids: list,
     cfg: dict,
     offer_ids: list = None,
@@ -220,7 +220,7 @@ def create_funnel_template(
         print(f"         (já existe, reutilizando id={existing['id']})")
         return existing
 
-    prelandings = [{"id": prelander_id, "weight": 100, "filters": ef}] if prelander_id else []
+    prelandings = [{"id": pid, "weight": 100, "filters": ef} for pid in prelander_ids]
     equal_weight = round(100 / len(lander_ids)) if lander_ids else 100
     landings = [{"id": lid, "weight": equal_weight, "filters": ef} for lid in lander_ids]
     offers   = [{"id": oid, "weight": 100, "filters": ef} for oid in all_offer_ids]
@@ -344,7 +344,7 @@ def setup(lc_code: str, account_number: str, base_domain: str, oferta: str = "Br
         print(f"         funnel_partner={partner_name} | {len(all_offer_ids)} offers no total")
 
     # 2–N. Pre-lander e Landers
-    prelander_id = None
+    prelander_ids = []
     lander_ids = []
     total_pages = len(all_page_entries)
 
@@ -375,12 +375,12 @@ def setup(lc_code: str, account_number: str, base_domain: str, oferta: str = "Br
         print(f"         id = {obj_id}")
 
         if role == "prelander":
-            prelander_id = obj_id
+            prelander_ids.append(obj_id)
         else:
             lander_ids.append(obj_id)
 
     # 5. Funnel template
-    stream = create_funnel_template(lc_code, base_domain, prelander_id, lander_ids, cfg, all_offer_ids, dry_run)
+    stream = create_funnel_template(lc_code, base_domain, prelander_ids, lander_ids, cfg, all_offer_ids, dry_run)
     stream_id = stream.get("id", "?")
     print(f"         stream_id = {stream_id}")
 
@@ -401,7 +401,7 @@ def setup(lc_code: str, account_number: str, base_domain: str, oferta: str = "Br
         "tracking_domain": tracking_domain,
         "domain_id": domain_id,
         "source_id": source_id,
-        "prelander_id": prelander_id,
+        "prelander_ids": prelander_ids,
         "lander_ids": lander_ids,
         "campaign_id": campaign_id,
         "trackback_url": f"https://{tracking_domain}/{campaign_id}",
