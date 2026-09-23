@@ -1,12 +1,16 @@
 import os
+import queue
 import re
+import subprocess
+import sys
+import uuid
 import requests
 import time
 import threading
 import concurrent.futures
 from datetime import datetime, timedelta, date
 from dotenv import load_dotenv
-from flask import Flask, render_template_string, jsonify, request as flask_request
+from flask import Flask, render_template_string, jsonify, request as flask_request, Response
 
 load_dotenv()
 
@@ -473,6 +477,30 @@ HTML = """
   .summary-item { display: flex; flex-direction: column; gap: 2px; }
   .summary-item .lbl { color: #555; font-size: 0.75rem; text-transform: uppercase; }
   .summary-item .val { color: #e8e8f0; font-weight: 600; }
+  /* ── Setup tab ── */
+  .setup-form { max-width: 560px; }
+  .form-group { margin-bottom: 18px; }
+  .form-group label { display: block; color: #888; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+  .form-group input, .form-group select { width: 100%; background: #12122a; border: 1px solid #2a2a50; border-radius: 8px; color: #e8e8f0; padding: 10px 14px; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
+  .form-group input:focus, .form-group select:focus { border-color: #00bfff; }
+  .form-group select option { background: #12122a; }
+  .hosting-options { display: flex; gap: 12px; }
+  .hosting-opt { flex: 1; border: 1px solid #2a2a50; border-radius: 8px; padding: 14px; cursor: pointer; transition: all 0.2s; text-align: center; }
+  .hosting-opt:hover { border-color: #00bfff44; }
+  .hosting-opt.selected { border-color: #00bfff; background: #00bfff11; }
+  .hosting-opt input[type=radio] { display: none; }
+  .hosting-opt .opt-icon { font-size: 1.6rem; margin-bottom: 6px; }
+  .hosting-opt .opt-name { font-weight: 700; font-size: 0.9rem; color: #e8e8f0; }
+  .hosting-opt .opt-desc { font-size: 0.75rem; color: #666; margin-top: 2px; }
+  .setup-btn { background: #00bfff; color: #0d0d1a; border: none; border-radius: 8px; padding: 12px 28px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+  .setup-btn:hover { opacity: 0.85; }
+  .setup-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .setup-log { margin-top: 28px; background: #080816; border: 1px solid #2a2a50; border-radius: 10px; padding: 16px; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.8rem; line-height: 1.6; color: #aaa; max-height: 460px; overflow-y: auto; display: none; white-space: pre-wrap; word-break: break-all; }
+  .setup-log.visible { display: block; }
+  .log-ok { color: #00dd77; }
+  .log-err { color: #ff4455; }
+  .log-head { color: #00bfff; }
+  .setup-status { margin-top: 12px; font-size: 0.85rem; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -487,6 +515,7 @@ HTML = """
   <div class="tab" onclick="switchTab('yesterday')">Ontem</div>
   <div class="tab" onclick="switchTab('month')">Mês Atual</div>
   <div class="tab" onclick="switchTab('gads')">Google Ads</div>
+  <div class="tab" onclick="switchTab('setup')">Setup</div>
 </div>
 
 <div class="tab-content active" id="tab-today">
@@ -506,6 +535,52 @@ HTML = """
     <button class="period-btn" onclick="switchGadsPeriod('month')">Mês Atual</button>
   </div>
   <div id="content-gads" class="loading"><div class="spinner"></div>Carregando dados...</div>
+</div>
+
+<div class="tab-content" id="tab-setup">
+  <div class="setup-form">
+    <div class="form-group">
+      <label>LC (código da conta)</label>
+      <input type="text" id="setup-lc" placeholder="ex: LC162" />
+    </div>
+    <div class="form-group">
+      <label>Número da Conta Google Ads</label>
+      <input type="text" id="setup-conta" placeholder="ex: 903-278-2252" />
+    </div>
+    <div class="form-group">
+      <label>Domínio</label>
+      <input type="text" id="setup-dominio" placeholder="ex: optimalhumanliving.online" />
+    </div>
+    <div class="form-group">
+      <label>Oferta</label>
+      <select id="setup-oferta">
+        <option value="BrainMary">BrainMary</option>
+        <option value="MaxForce">MaxForce</option>
+        <option value="JellyFill">JellyFill</option>
+        <option value="HorseWood">HorseWood</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Hospedagem das páginas</label>
+      <div class="hosting-options">
+        <label class="hosting-opt selected" id="opt-ftp" onclick="selectHosting('ftp')">
+          <input type="radio" name="hosting" value="ftp" checked />
+          <div class="opt-icon">🖥️</div>
+          <div class="opt-name">Hostinger FTP</div>
+          <div class="opt-desc">Upload direto para o servidor</div>
+        </label>
+        <label class="hosting-opt" id="opt-github" onclick="selectHosting('github')">
+          <input type="radio" name="hosting" value="github" />
+          <div class="opt-icon">🐙</div>
+          <div class="opt-name">GitHub Pages</div>
+          <div class="opt-desc">Hospedagem via aprovatudo.github.io</div>
+        </label>
+      </div>
+    </div>
+    <button class="setup-btn" id="setup-run-btn" onclick="runSetup()">▶ Iniciar Setup</button>
+    <div class="setup-status" id="setup-status"></div>
+    <div class="setup-log" id="setup-log"></div>
+  </div>
 </div>
 
 <script>
@@ -944,10 +1019,10 @@ function toggleEl(id) {
   if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 
-// ── Tab switching (updated to handle gads) ───────────────────────────────────
+// ── Tab switching ────────────────────────────────────────────────────────────
 function switchTab(tab) {
   document.querySelectorAll('.tab').forEach((t, i) => {
-    t.classList.toggle('active', ['today','yesterday','month','gads'][i] === tab);
+    t.classList.toggle('active', ['today','yesterday','month','gads','setup'][i] === tab);
   });
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
@@ -955,9 +1030,85 @@ function switchTab(tab) {
   if (tab === 'gads') {
     if (!gadsCache[gadsPeriod]) loadGads(gadsPeriod);
     else renderGads(gadsCache[gadsPeriod]);
-  } else {
+  } else if (tab !== 'setup') {
     if (!cache[tab]) loadData(tab);
   }
+}
+
+// ── Setup tab ────────────────────────────────────────────────────────────────
+let _selectedHosting = 'ftp';
+let _setupEvtSource = null;
+
+function selectHosting(val) {
+  _selectedHosting = val;
+  document.getElementById('opt-ftp').classList.toggle('selected', val === 'ftp');
+  document.getElementById('opt-github').classList.toggle('selected', val === 'github');
+}
+
+function _appendLog(text) {
+  const el = document.getElementById('setup-log');
+  el.classList.add('visible');
+  const line = document.createElement('div');
+  if (text.includes('ERRO') || text.includes('Error') || text.includes('✗')) {
+    line.className = 'log-err';
+  } else if (text.includes('✓') || text.includes('OK') || text.includes('CONCLUÍDO')) {
+    line.className = 'log-ok';
+  } else if (text.startsWith('===') || text.startsWith('[1/') || text.startsWith('[2/') || text.startsWith('[3/')) {
+    line.className = 'log-head';
+  }
+  line.textContent = text;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+function runSetup() {
+  const lc      = document.getElementById('setup-lc').value.trim();
+  const conta   = document.getElementById('setup-conta').value.trim();
+  const dominio = document.getElementById('setup-dominio').value.trim();
+  const oferta  = document.getElementById('setup-oferta').value;
+  if (!lc || !conta || !dominio) {
+    alert('Preencha LC, Conta e Domínio.');
+    return;
+  }
+  if (_setupEvtSource) { _setupEvtSource.close(); _setupEvtSource = null; }
+  const logEl = document.getElementById('setup-log');
+  const statusEl = document.getElementById('setup-status');
+  const btn = document.getElementById('setup-run-btn');
+  logEl.innerHTML = '';
+  logEl.classList.add('visible');
+  statusEl.style.color = '#888';
+  statusEl.textContent = 'Iniciando...';
+  btn.disabled = true;
+
+  fetch('/api/setup/run', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({lc, conta, dominio, oferta, hosting: _selectedHosting}),
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) { statusEl.style.color='#ff4455'; statusEl.textContent='Erro: '+data.error; btn.disabled=false; return; }
+    const jobId = data.job_id;
+    statusEl.textContent = 'Executando...';
+    _setupEvtSource = new EventSource('/api/setup/stream/' + jobId);
+    _setupEvtSource.onmessage = e => {
+      if (e.data === '__DONE__') {
+        _setupEvtSource.close();
+        btn.disabled = false;
+        statusEl.style.color = '#00dd77';
+        statusEl.textContent = 'Setup concluído!';
+      } else if (e.data !== '__PING__') {
+        _appendLog(e.data);
+      }
+    };
+    _setupEvtSource.onerror = () => {
+      _setupEvtSource.close();
+      btn.disabled = false;
+      statusEl.style.color = '#ff4455';
+      statusEl.textContent = 'Conexão interrompida.';
+    };
+  })
+  .catch(err => { statusEl.style.color='#ff4455'; statusEl.textContent='Erro: '+err; btn.disabled=false; });
 }
 
 // Auto-refresh a cada 5 minutos
@@ -1263,6 +1414,74 @@ def api_debug_vturb_raw(player_id):
         return jsonify({"status": r.status_code, "body": r.json() if r.headers.get("content-type","").startswith("application/json") else r.text})
     except Exception as e:
         return jsonify({"error": str(e)})
+
+
+_setup_jobs = {}
+_setup_lock = threading.Lock()
+
+@app.route("/api/setup/run", methods=["POST"])
+def api_setup_run():
+    data    = flask_request.get_json() or {}
+    lc      = data.get("lc", "").strip()
+    conta   = data.get("conta", "").strip()
+    dominio = data.get("dominio", "").strip()
+    oferta  = data.get("oferta", "BrainMary").strip()
+    hosting = data.get("hosting", "ftp")
+
+    if not lc or not conta or not dominio:
+        return jsonify({"error": "Campos obrigatórios: lc, conta, dominio"}), 400
+
+    job_id = str(uuid.uuid4())[:8]
+    q = queue.Queue()
+    with _setup_lock:
+        _setup_jobs[job_id] = {"queue": q, "done": False}
+
+    script_path = os.path.join(os.path.dirname(__file__), "brainmary_setup.py")
+    cmd = [sys.executable, script_path,
+           "--lc", lc, "--conta", conta, "--dominio", dominio, "--oferta", oferta]
+    if hosting == "github":
+        cmd.append("--github-pages")
+
+    def run():
+        try:
+            proc = subprocess.Popen(
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                text=True, bufsize=1, cwd=os.path.dirname(__file__),
+            )
+            for line in proc.stdout:
+                q.put(line.rstrip())
+            proc.wait()
+        except Exception as e:
+            q.put(f"[ERRO] {e}")
+        finally:
+            q.put(None)
+            with _setup_lock:
+                _setup_jobs[job_id]["done"] = True
+
+    threading.Thread(target=run, daemon=True).start()
+    return jsonify({"job_id": job_id})
+
+
+@app.route("/api/setup/stream/<job_id>")
+def api_setup_stream(job_id):
+    job = _setup_jobs.get(job_id)
+    if not job:
+        return jsonify({"error": "Job não encontrado"}), 404
+
+    def generate():
+        q = job["queue"]
+        while True:
+            try:
+                line = q.get(timeout=30)
+                if line is None:
+                    yield "data: __DONE__\n\n"
+                    break
+                yield f"data: {line}\n\n"
+            except queue.Empty:
+                yield "data: __PING__\n\n"
+
+    return Response(generate(), mimetype="text/event-stream",
+                    headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
 
 if __name__ == "__main__":

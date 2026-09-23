@@ -270,8 +270,8 @@ def add_security_domain(page, context, jwt_token, player_id: str, domain: str):
         domain_input.fill(domain)
         page.wait_for_timeout(300)
 
-        # Salvar
-        page.locator("text=Salvar alterações").click()
+        # Confirmar no modal clicando no botão "Adicionar" (não "Adicionar outro")
+        page.get_by_role("button", name="Adicionar", exact=True).click()
         page.wait_for_timeout(2000)
 
         if domain in page.inner_text("body"):

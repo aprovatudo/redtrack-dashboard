@@ -71,6 +71,20 @@ SHEET_CONFIG = {
         "name_col": "CRIATIVOS",
         "currency_format": "$#,##0.00",
     },
+    "BadRock": {
+        "campaign_pattern": "BADROCK",
+        "name_col": "CRIATIVOS",
+        "currency_format": "$#,##0.00",
+    },
+    "Baking Soda 2.0": {
+        "campaign_pattern": "SODATIDE",
+        "name_col": "CRIATIVOS",
+        "currency_format": "$#,##0.00",
+        "name_mapping": {
+            "AF 3.3 BS2-YT-PR": "AF 3.3 BS2-YT-TS",
+            "AF 3.4 BS2-YT-PR": "AF 3.4 BS2-YT-TS",
+        },
+    },
     "BrainMary": {
         "campaign_pattern": "BRAINMARY",
         "name_col": "CRIATIVOS",

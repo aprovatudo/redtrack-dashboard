@@ -599,16 +599,17 @@
   "SODATIDE": {
     "template_domain": "fg.yourcompletehealthguide.online",
     "template_campaign": "6aa990bbbc7fb8ca94c36fed",
-    "template_vslsdtide_player": "6aa992902bb80ca6eb84faf5",
+    "template_vslsdtide_player": "6aad83cce82bf7c7b29bf89c",
     "vturb_folder_id": "6aa9927d7c7530f2a303e725",
     "vturb_templates": {
-      "vslsdtide": "6aa992902bb80ca6eb84faf5"
+      "vslsdtide": "6aad83cce82bf7c7b29bf89c"
     },
     "vturb_video_names": {
-      "vslsdtide": "PAGE 12 CORRIGIDO - LEAD 1 BAKING SODA 3.0 - SODATIDE - META COM O NOV.mp4 - {lc}"
+      "vslsdtide": "PAGE 13 CORRIGIDO - LEAD 1 BAKING SODA 3.0 - SODATIDE - META COM O NOV.mp4 - {lc}"
     },
     "pages": {
       "pretide": ["domain", "campaign"],
+      "pretide2": ["domain", "campaign"],
       "vslsdtide": ["domain", "campaign", "vslsdtide"]
     },
     "redtrack": {
@@ -634,6 +635,12 @@
           "slug": "pretide",
           "type": "p",
           "label": "PRESELL",
+          "role": "prelander"
+        },
+        {
+          "slug": "pretide2",
+          "type": "p",
+          "label": "PRESELL 2",
           "role": "prelander"
         },
         {
